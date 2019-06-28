@@ -24,7 +24,6 @@
       </div>
     </b-modal>
     <claim-creator :selectedArea="selectedArea"></claim-creator>
-    <delete-confirmation></delete-confirmation>
   </div>
 </template>
 
@@ -88,9 +87,9 @@ export default {
     },
     getClaimType(type) {
       return fetch(
-        `http://${this.connectionInfo.ip}:${
+        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${
           this.cpmPort
-        }/api/getmapclaims?type=${type}`
+        }&type=${type}`
       )
         .then(function(response) {
           if (response) {

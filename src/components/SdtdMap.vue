@@ -170,9 +170,9 @@ export default {
     },
     getClaims(type) {
       return fetch(
-        `http://${this.connectionInfo.ip}:${
+        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${
           this.cpmPort
-        }/api/getmapclaims?type=${type}`
+        }&type=${type}`
       )
         .then(function(response) {
           if (response) {
