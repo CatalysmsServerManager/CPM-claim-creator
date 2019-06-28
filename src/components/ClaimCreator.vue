@@ -169,7 +169,7 @@ export default {
           // Do nothing
           break;
         case "hostilefree":
-          commandString += `"${this.type}"`;
+          commandString += `${this.type}`;
           break;
         case "leveled":
           commandString += `"${this.type}:${this.options.yCoordHigh},${
