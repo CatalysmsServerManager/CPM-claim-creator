@@ -1,6 +1,6 @@
 <template>
   <div id="map-container">
-    <div id="map">Please fill in connection info in the server settings tab.</div>
+    <div id="map">{{mapMessage}}</div>
   </div>
 </template>
 
@@ -16,6 +16,7 @@ export default {
       map: null,
       tileLayer: null,
       layers: [],
+      mapMessage: "Please fill in connection info in the server settings tab.",
       mapInfo: {
         regionsize: 512,
         chunksize: 16,
@@ -77,6 +78,7 @@ export default {
 
   methods: {
     createMap() {
+      this.mapMessage = "";
       this.initMap();
       this.initLayers();
 
