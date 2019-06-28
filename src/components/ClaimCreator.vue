@@ -82,6 +82,10 @@
         <p>Create an area for locking players in (aka jail). When whitelisted for a reversed claim, a player cannot leave the area and will get tp'd back in if he/she tries.</p>
       </div>
 
+      <div v-if="type === 'hostilefree'">
+        <p>This is used for creating hostilefree area's. All hostiles will despawn in this type of advanced claim..</p>
+      </div>
+
       <div v-if="type === 'timed'">
         <p>Create an area for protecting bases/structures. Players not on whitelist of the claim will get tp'd out. This claim type has a time to live (hours). After the time has passed this claim will vanish.</p>
         <label for="timeToLive">Hours before claims vanishes</label>
@@ -92,6 +96,12 @@
         <p>Trigger one or multiple console commands when a player enter this claim area. The claim type must be enclosed in double quotes and parameters with spaces within each command must be enclosed in single quotes. Use semicolon ( ; ) to seperate commands.</p>
         <label for="command">Command to execute</label>
         <b-form-input id="command" v-model="options.command"></b-form-input>
+      </div>
+
+      <div v-if="type === 'playerlevel'">
+        <p>This claim can be used to restrict/grant access to a claim by player level. Built in basic logical expression, plus support for level ranges.</p>
+        <label for="playerLevelCheck">Operator check</label>
+        <b-form-input id="playerLevelCheck" v-model="options.playerLevelCheck"></b-form-input>
       </div>
 
       <div v-if="type === 'lcbfree'">
@@ -128,7 +138,9 @@ export default {
         // Timed
         timeToLive: 12,
         // Command
-        command: "say 'Welcome ${playerName} to the claim!'"
+        command: "say 'Welcome ${playerName} to the claim!'",
+        // Playerlevel
+        playerLevelCheck: "<=20"
       },
       accessLevel: 0
     };
@@ -192,6 +204,9 @@ export default {
           break;
         case "lcbfree":
           commandString += `${this.type}`;
+          break;
+        case "playerlevel":
+          commandString += `"${this.type}:${this.options.playerLevelCheck}"`;
           break;
         default:
           break;
