@@ -25,11 +25,13 @@
       <label for="type-select">The type of claim. This will control its behaviour</label>
       <b-form-select id="type-select" v-model="type" :options="claimTypes"></b-form-select>
 
-      <label for="claim-options">
-        These are the options you would ordinarily give to the command. For example - for a notify claim - this could look like this:
-        <strong>Entering the notify claim:Exiting the notify claim</strong>
-      </label>
-      <b-form-input id="claim-options" v-model="options" placeholder="<stepHeight>:<x>,<y>,<z>"></b-form-input>
+      <div v-if="type !== 'normal'">
+        <label for="claim-options">
+          These are the options you would ordinarily give to the command. For example - for a notify claim - this could look like this:
+          <strong>Entering the notify claim:Exiting the notify claim</strong>
+        </label>
+        <b-form-input id="claim-options" v-model="options" placeholder="<stepHeight>:<x>,<y>,<z>"></b-form-input>
+      </div>
 
       <label for="claim-accessLevel">Accesslevel</label>
 
@@ -64,11 +66,20 @@ export default {
       return Math.round(2 * (width + length));
     },
     command() {
-      return `ccc add ${
+      // TODO: Some claims need type but no options -> so no colon
+      // TODO: change form fields based on types
+
+      let commandString = `ccc add ${
         this.name
       } ${this.getW()} ${this.getE()} ${this.getN()} ${this.getS()} ${
         this.accessLevel
-      } "${this.type}:${this.options}"`;
+      }`;
+
+      if (this.type !== "normal") {
+        commandString += `"${this.type}:${this.options}"`;
+      }
+
+      return commandString;
     }
   },
   methods: {
