@@ -28,11 +28,18 @@
 </template>
 
 <script>
+import L from "leaflet";
 import { eventBus } from "../main";
 
 export default {
   data() {
     return {
+      mapInfo: {
+        regionsize: 512,
+        chunksize: 16,
+        tilesize: 128,
+        maxzoom: 4
+      },
       selected: [],
       claims: [],
       commands: [],
@@ -72,15 +79,35 @@ export default {
     });
   },
   methods: {
+    FormatRegionFileName(latlng) {
+      return "r." + latlng.lat + "." + latlng.lng + ".7rg";
+    },
+    CoordToRegion(latlng) {
+      var x = Math.floor(
+        (latlng.lat + 16777216) / this.mapInfo.regionsize -
+          16777216 / this.mapInfo.regionsize
+      );
+      var y = Math.floor(
+        (latlng.lng + 16777216) / this.mapInfo.regionsize -
+          16777216 / this.mapInfo.regionsize
+      );
+      return L.latLng(x, y);
+    },
     async onDelete() {
       for (const claim of this.selected) {
-        eventBus.$emit("add-command", `ccc remove ${claim.Name}`);
+        if (claim["Claim type"] === "Reset region") {
+          eventBus.$emit("add-command", `mrr remove ${claim.Name}`);
+        } else {
+          eventBus.$emit("add-command", `ccc remove ${claim.Name}`);
+        }
       }
     },
     rowSelected(items) {
       this.selected = items;
     },
     async getClaims() {
+      const resetRegions = await this.getClaimType("resetregion");
+
       for (const claimType of this.claimTypes) {
         const claims = await this.getClaimType(claimType);
         for (const claim of claims) {
@@ -89,6 +116,15 @@ export default {
           delete claim.Type;
           this.claims.push(claim);
         }
+      }
+      for (const resetRegion of resetRegions) {
+        const region = this.CoordToRegion({
+          lat: (resetRegion.W + resetRegion.E) / 2,
+          lng: (resetRegion.N + resetRegion.S) / 2
+        });
+        resetRegion.Name = this.FormatRegionFileName(region);
+        resetRegion["Claim type"] = "Reset region";
+        this.claims.push(resetRegion);
       }
     },
     getClaimType(type) {
