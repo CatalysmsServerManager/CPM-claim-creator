@@ -178,7 +178,8 @@ export default {
           };
           const regionRec = this.createClaimRectangle(
             claimDetails,
-            "Selected region"
+            "Selected region",
+            "grey"
           );
           regionRec.addTo(this.map);
 
@@ -274,9 +275,9 @@ export default {
       }
       this.layers[claimType] = new L.LayerGroup(rectangles);
     },
-    createClaimRectangle(claim, type) {
+    createClaimRectangle(claim, type, color) {
       const rectangle = L.rectangle([[claim.W, claim.S], [claim.E, claim.N]], {
-        color: this.activeColor,
+        color: color || this.activeColor,
         weight: 1
       });
       if (type) {
