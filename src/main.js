@@ -40,7 +40,7 @@ window.claimTypes = [
 ];
 
 // Since most maps are not accesible via https, we have to proxy requests through a https enabled API
-window.requestProxy = "http://aether.catalysm.net:8082"
+window.requestProxy = "https://cpm-api.herokuapp.com"
 
 library.add(faExternalLinkAlt);
 library.add(faTrashAlt);
