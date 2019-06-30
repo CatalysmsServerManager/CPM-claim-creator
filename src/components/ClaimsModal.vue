@@ -15,13 +15,6 @@
         :select-mode="multi"
         @row-selected="rowSelected"
       ></b-table>
-
-      <div v-if="commands.length > 0">
-        <h2>Commands to execute:</h2>
-        <ul>
-          <li v-for="(command, index) in commands" v-bind:key="`command-${index}`">{{ command }}</li>
-        </ul>
-      </div>
     </b-modal>
     <claim-creator :selectedArea="selectedArea" :selectedRegions="selectedRegions"></claim-creator>
   </div>
@@ -65,12 +58,16 @@ export default {
     }
     this.getClaims();
 
+    eventBus.$on("refresh-claims", () => {
+      this.claims = [];
+      this.getClaims();
+    });
+
     eventBus.$on("area-selected", latLngSelected => {
       this.selectedArea = latLngSelected;
     });
 
     eventBus.$on("region-selected", regions => {
-      console.log(regions);
       this.selectedRegions = regions;
     });
 

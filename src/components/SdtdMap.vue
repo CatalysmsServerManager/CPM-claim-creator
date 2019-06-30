@@ -88,6 +88,14 @@ export default {
         this.createMap();
       }
     });
+
+    eventBus.$on("refresh-claims", () => {
+      if (this.map != null) {
+        this.map.remove();
+        this.map = null;
+        this.createMap();
+      }
+    });
   },
 
   methods: {

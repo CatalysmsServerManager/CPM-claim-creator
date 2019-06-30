@@ -4,7 +4,8 @@ import {
   library
 } from '@fortawesome/fontawesome-svg-core';
 import {
-  faExternalLinkAlt
+  faExternalLinkAlt,
+  faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
 import {
   FontAwesomeIcon
@@ -20,6 +21,7 @@ import SdtdMap from './components/SdtdMap.vue';
 import ServerSettings from './components/ServerSettings.vue';
 import ClaimsModal from './components/ClaimsModal.vue';
 import ClaimCreator from './components/ClaimCreator.vue';
+import CommandsModal from './components/CommandsModal.vue';
 
 require('../node_modules/leaflet/dist/leaflet.css');
 
@@ -38,15 +40,17 @@ window.claimTypes = [
 ];
 
 // Since most maps are not accesible via https, we have to proxy requests through a https enabled API
-window.requestProxy = "https://cpm-api.herokuapp.com"
+window.requestProxy = "http://aether.catalysm.net:8082"
 
-library.add(faExternalLinkAlt)
+library.add(faExternalLinkAlt);
+library.add(faTrashAlt);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('sidebar', SideBar);
 Vue.component('sdtd-map', SdtdMap);
 Vue.component('server-settings', ServerSettings)
 Vue.component('claims', ClaimsModal);
 Vue.component('claim-creator', ClaimCreator);
+Vue.component('commands-modal', CommandsModal);
 
 Vue.use(BootstrapVue)
 

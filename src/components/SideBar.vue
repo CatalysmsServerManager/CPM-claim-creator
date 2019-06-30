@@ -3,6 +3,10 @@
     <h1>CPM Advanced Claim creator</h1>
     <a href="#" v-b-modal.server-settings>Server settings</a>
     <a href="#" v-b-modal.claims>Claims</a>
+    <a href="#" v-b-modal.commands>
+      Commands
+      <b-badge v-if="commands" pill variant="primary">{{commands}}</b-badge>
+    </a>
     <a href="https://confluence.catalysm.net/pages/viewpage.action?pageId=1114182" target="_blank">
       Documentation
       <font-awesome-icon icon="external-link-alt" size="xs" />
@@ -13,12 +17,25 @@
     </a>
     <server-settings></server-settings>
     <claims></claims>
+    <commands-modal></commands-modal>
   </div>
 </template>
 
 <script>
+import { eventBus } from "../main";
+
 export default {
-  name: "SideBar"
+  name: "SideBar",
+  data() {
+    return {
+      commands: 0
+    };
+  },
+  mounted() {
+    eventBus.$on("set-commands", amount => {
+      this.commands = amount;
+    });
+  }
 };
 </script>
 

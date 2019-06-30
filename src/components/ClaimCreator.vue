@@ -116,7 +116,7 @@
       </div>
     </div>
 
-    <div v-if="selectedRegions.length > 1">
+    <div v-if="selectedRegions.length > 0">
       <div>You have selected {{selectedRegions.length}} regions.</div>
 
       <ul id="reset-regions">
@@ -238,22 +238,22 @@ export default {
     },
     getW() {
       return Math.round(
-        Math.min(this.selectedArea[0].lng, this.selectedArea[1].lng)
+        Math.min(this.selectedArea[0].lat, this.selectedArea[1].lat)
       );
     },
     getE() {
       return Math.round(
-        Math.max(this.selectedArea[0].lng, this.selectedArea[1].lng)
+        Math.max(this.selectedArea[0].lat, this.selectedArea[1].lat)
       );
     },
     getN() {
       return Math.round(
-        Math.max(this.selectedArea[0].lat, this.selectedArea[1].lat)
+        Math.max(this.selectedArea[0].lng, this.selectedArea[1].lng)
       );
     },
     getS() {
       return Math.round(
-        Math.min(this.selectedArea[0].lat, this.selectedArea[1].lat)
+        Math.min(this.selectedArea[0].lng, this.selectedArea[1].lng)
       );
     }
   }
