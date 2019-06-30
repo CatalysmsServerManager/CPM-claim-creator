@@ -3,7 +3,7 @@
     <h1>CPM Advanced Claim creator</h1>
     <a href="#" v-b-modal.server-settings>Server settings</a>
     <a href="#" v-b-modal.claims>Claims</a>
-    <a href="#" target="_blank">
+    <a href="https://confluence.catalysm.net/pages/viewpage.action?pageId=1114182" target="_blank">
       Documentation
       <font-awesome-icon icon="external-link-alt" size="xs" />
     </a>
