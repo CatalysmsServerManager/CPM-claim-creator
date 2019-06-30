@@ -5,11 +5,11 @@
     <a href="#" v-b-modal.claims>Claims</a>
     <a href="#" target="_blank">
       Documentation
-      <font-awesome-icon icon="external-link-alt" size="xs"/>
+      <font-awesome-icon icon="external-link-alt" size="xs" />
     </a>
     <a href="https://catalysm.net/discord" target="_blank">
       Discord
-      <font-awesome-icon icon="external-link-alt" size="xs"/>
+      <font-awesome-icon icon="external-link-alt" size="xs" />
     </a>
     <server-settings></server-settings>
     <claims></claims>

@@ -1,6 +1,15 @@
 <template>
   <div id="map-container">
-    <div id="map">{{mapMessage}}</div>
+    <div id="map">
+      {{mapMessage}}
+      <div class="leaflet-bottom leaflet-left">
+        <b-button-group size="sm" id="selection-control">
+          <b-button :disabled="selectionMode === 'area'" @click="areaSelect">Select area</b-button>
+          <b-button :disabled="selectionMode === 'region'" @click="regionSelect">Select region</b-button>
+          <b-button @click="clearSelection" variant="danger">Clear selection</b-button>
+        </b-button-group>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,6 +33,10 @@ export default {
         maxzoom: 4
       },
       clickMarkers: [],
+      // Rectangles on the map
+      selectedRegionsRecs: [],
+      // Region names
+      selectedRegions: [],
       selectedArea: null,
       claimTypes: window.claimTypes,
       connectionInfo: {
@@ -32,6 +45,7 @@ export default {
         adminUser: "",
         adminToken: ""
       },
+      selectionMode: "area",
       colors: [
         "purple",
         "cyan",
@@ -77,46 +91,106 @@ export default {
   },
 
   methods: {
+    areaSelect(e) {
+      // Make sure the map does not get the event, otherwise an invalid click is registered
+      L.DomEvent.stop(e);
+      this.clearSelection();
+      this.selectionMode = "area";
+    },
+    regionSelect(e) {
+      // Make sure the map does not get the event, otherwise an invalid click is registered
+      L.DomEvent.stop(e);
+      this.clearSelection();
+      this.selectionMode = "region";
+    },
+    clearSelection(e) {
+      // This function is not always called as a result of a button click
+      if (e) {
+        // Make sure the map does not get the event, otherwise an invalid click is registered
+        L.DomEvent.stop(e);
+      }
+      // Area
+      for (const marker of this.clickMarkers) {
+        marker.remove();
+      }
+
+      this.clickMarkers = [];
+      if (this.selectedArea) {
+        this.selectedArea.remove();
+      }
+
+      // Regions
+      for (const region of this.selectedRegionsRecs) {
+        region.remove();
+      }
+      this.selectedRegions = [];
+      eventBus.$emit("area-selected", null);
+      eventBus.$emit("region-selected", this.selectedRegions);
+    },
+    handleRegionClick() {},
+    handleAreaClick() {},
     createMap() {
       this.mapMessage = "";
       this.initMap();
       this.initLayers();
 
       this.map.on("click", event => {
-        if (this.clickMarkers.length > 1) {
-          this.clickMarkers[0].remove();
-          this.clickMarkers = this.clickMarkers.slice(
-            1,
-            this.clickMarkers.length
+        if (this.selectionMode === "area") {
+          if (this.clickMarkers.length > 1) {
+            this.clickMarkers[0].remove();
+            this.clickMarkers = this.clickMarkers.slice(
+              1,
+              this.clickMarkers.length
+            );
+          }
+
+          this.clickMarkers.push(
+            L.circle(event.latlng, { radius: 1 }).addTo(this.map)
           );
+
+          if (this.clickMarkers.length === 2) {
+            const latLngSelected = [
+              this.clickMarkers[0].getLatLng(),
+              this.clickMarkers[1].getLatLng()
+            ];
+            if (this.selectedArea) {
+              this.selectedArea.remove();
+            }
+            const selectedArea = L.rectangle(latLngSelected, {
+              weight: 1
+            }).addTo(this.map);
+
+            this.selectedArea = selectedArea;
+            eventBus.$emit("area-selected", latLngSelected);
+          }
         }
 
-        this.clickMarkers.push(
-          L.circle(event.latlng, { radius: 1 }).addTo(this.map)
-        );
+        if (this.selectionMode === "region") {
+          const region = this.CoordToRegion(event.latlng);
+          const regionName = this.FormatRegionFileName(region);
+          const claimDetails = {
+            W: region.lat * this.mapInfo.regionsize,
+            E: region.lat * this.mapInfo.regionsize + this.mapInfo.regionsize,
+            N: region.lng * this.mapInfo.regionsize + this.mapInfo.regionsize,
+            S: region.lng * this.mapInfo.regionsize,
+            Name: regionName,
+            Type: "To be confirmed reset region"
+          };
+          const regionRec = this.createClaimRectangle(
+            claimDetails,
+            "Selected region"
+          );
+          regionRec.addTo(this.map);
 
-        if (this.clickMarkers.length === 2) {
-          const latLngSelected = [
-            this.clickMarkers[0].getLatLng(),
-            this.clickMarkers[1].getLatLng()
-          ];
-          if (this.selectedArea) {
-            this.selectedArea.remove();
-          }
-          const selectedArea = L.rectangle(latLngSelected, {
-            weight: 1
-          }).addTo(this.map);
-
-          this.selectedArea = selectedArea;
-          eventBus.$emit("area-selected", latLngSelected);
+          this.selectedRegionsRecs.push(regionRec);
+          this.selectedRegions.push(regionName);
+          eventBus.$emit("region-selected", this.selectedRegions);
         }
       });
     },
     GetSdtdTileLayer(mapinfo) {
       var tileLayer = L.tileLayer(
-        `http://${this.connectionInfo.ip}:${
-          this.connectionInfo.port
-        }/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
+        `http://${this.connectionInfo.ip}:${this.connectionInfo.port}/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
         {
           maxZoom: mapinfo.maxzoom + 1,
           minZoom: Math.max(0, mapinfo.maxzoom - 5),
@@ -170,9 +244,7 @@ export default {
     },
     getClaims(type) {
       return fetch(
-        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${
-          this.cpmPort
-        }&type=${type}`
+        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${this.cpmPort}&type=${type}`
       )
         .then(function(response) {
           if (response) {
@@ -188,32 +260,140 @@ export default {
     async drawAllClaims() {
       this.colorIterator = 0;
       for (const claimType of this.claimTypes) {
-        const claims = await this.getClaims(claimType);
-        const rectangles = [];
-        for (const claim of claims) {
-          rectangles.push(this.createClaimRectangle(claim, claimType));
-        }
-        this.layers[claimType] = new L.LayerGroup(rectangles);
+        await this.drawClaim(claimType);
         this.colorIterator++;
       }
-      L.control.layers(null, this.layers).addTo(this.map);
+      this.colorIterator = 0;
+      await this.drawClaim("resetregion");
+    },
+    async drawClaim(claimType) {
+      const claims = await this.getClaims(claimType);
+      const rectangles = [];
+      for (const claim of claims) {
+        rectangles.push(this.createClaimRectangle(claim, claimType));
+      }
+      this.layers[claimType] = new L.LayerGroup(rectangles);
     },
     createClaimRectangle(claim, type) {
       const rectangle = L.rectangle([[claim.W, claim.S], [claim.E, claim.N]], {
         color: this.activeColor,
         weight: 1
       });
-      const popup = L.popup().setContent(
-        `Name: ${claim.Name} Type: ${type} ${claim.Type}`
-      );
-      rectangle.bindPopup(popup);
+      if (type) {
+        const popup = L.popup().setContent(
+          `Name: ${claim.Name} Type: ${type} ${claim.Type}`
+        );
+        rectangle.bindPopup(popup);
+      }
       return rectangle;
     },
-    initLayers() {
+    async initLayers() {
       this.tileLayer = this.GetSdtdTileLayer(this.mapInfo);
 
       this.tileLayer.addTo(this.map);
-      this.drawAllClaims();
+      await this.drawAllClaims();
+      this.layers["Regions"] = this.getRegionLayer(this.mapInfo);
+      L.control.layers(null, this.layers).addTo(this.map);
+    },
+    FormatRegionFileName(latlng) {
+      return "r." + latlng.lat + "." + latlng.lng + ".7rg";
+    },
+    CoordToRegion(latlng) {
+      var x = Math.floor(
+        (latlng.lat + 16777216) / this.mapInfo.regionsize -
+          16777216 / this.mapInfo.regionsize
+      );
+      var y = Math.floor(
+        (latlng.lng + 16777216) / this.mapInfo.regionsize -
+          16777216 / this.mapInfo.regionsize
+      );
+      return L.latLng(x, y);
+    },
+    getRegionLayer(mapInfo) {
+      // Copyright Alloc
+      // https://7dtd.illy.bz
+
+      // Yeah it's stupid, I know.
+      // Keeps a reference to the Vue Instance
+      const self = this;
+
+      var regionLayer = L.gridLayer({
+        maxZoom: mapInfo.maxzoom + 1,
+        minZoom: 0,
+        maxNativeZoom: mapInfo.maxzoom + 1,
+        tileSize: mapInfo.tilesize
+      });
+
+      regionLayer.createTile = function(tilePoint) {
+        var blockWorldSize =
+          mapInfo.tilesize * Math.pow(2, mapInfo.maxzoom - tilePoint.z);
+        var tileLeft = tilePoint.x * blockWorldSize;
+        var tileBottom = (-1 - tilePoint.y) * blockWorldSize;
+        var blockPos = L.latLng(tileLeft, tileBottom);
+
+        var canvas = L.DomUtil.create("canvas", "leaflet-tile");
+        canvas.width = mapInfo.tilesize;
+        canvas.height = mapInfo.tilesize;
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "white";
+        ctx.lineWidth = 1;
+        ctx.font = "14px Arial";
+        ctx.strokeStyle = "black";
+
+        var lineCount = blockWorldSize / mapInfo.regionsize;
+        if (lineCount >= 1) {
+          var pos = 0;
+          while (pos < mapInfo.tilesize) {
+            // Vertical
+            ctx.beginPath();
+            ctx.moveTo(pos, 0);
+            ctx.lineTo(pos, mapInfo.tilesize);
+            ctx.stroke();
+
+            // Horizontal
+            ctx.beginPath();
+            ctx.moveTo(0, pos);
+            ctx.lineTo(mapInfo.tilesize, pos);
+            ctx.stroke();
+
+            pos += mapInfo.tilesize / lineCount;
+          }
+          let region = self.CoordToRegion(blockPos);
+          const regionName = self.FormatRegionFileName(region);
+          ctx.lineWidth = 4;
+          ctx.strokeText(regionName, 4, mapInfo.tilesize - 5);
+          ctx.fillText(regionName, 4, mapInfo.tilesize - 5);
+        } else {
+          if (tileLeft % mapInfo.regionsize == 0) {
+            // Vertical
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, mapInfo.tilesize);
+            ctx.stroke();
+          }
+          if (tileBottom % mapInfo.regionsize == 0) {
+            // Horizontal
+            ctx.beginPath();
+            ctx.moveTo(0, mapInfo.tilesize);
+            ctx.lineTo(mapInfo.tilesize, mapInfo.tilesize);
+            ctx.stroke();
+          }
+          if (
+            tileLeft % mapInfo.regionsize == 0 &&
+            tileBottom % mapInfo.regionsize == 0
+          ) {
+            let region = self.CoordToRegion(blockPos);
+            const regionName = self.FormatRegionFileName(region);
+            ctx.lineWidth = 4;
+            ctx.strokeText(regionName, 4, mapInfo.tilesize - 5);
+            ctx.fillText(regionName, 4, mapInfo.tilesize - 5);
+          }
+        }
+        return canvas;
+      };
+
+      return regionLayer;
     }
   }
 };
@@ -229,5 +409,9 @@ export default {
 #map {
   height: 100vh;
   width: auto;
+}
+
+#selection-control {
+  pointer-events: auto;
 }
 </style>

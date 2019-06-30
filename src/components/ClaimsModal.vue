@@ -23,7 +23,7 @@
         </ul>
       </div>
     </b-modal>
-    <claim-creator :selectedArea="selectedArea"></claim-creator>
+    <claim-creator :selectedArea="selectedArea" :selectedRegions="selectedRegions"></claim-creator>
   </div>
 </template>
 
@@ -37,6 +37,7 @@ export default {
       claims: [],
       commands: [],
       selectedArea: null,
+      selectedRegions: [],
       claimTypes: window.claimTypes,
       connectionInfo: {
         ip: "",
@@ -59,6 +60,11 @@ export default {
 
     eventBus.$on("area-selected", latLngSelected => {
       this.selectedArea = latLngSelected;
+    });
+
+    eventBus.$on("region-selected", regions => {
+      console.log(regions);
+      this.selectedRegions = regions;
     });
 
     eventBus.$on("add-command", command => {
@@ -87,9 +93,7 @@ export default {
     },
     getClaimType(type) {
       return fetch(
-        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${
-          this.cpmPort
-        }&type=${type}`
+        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${this.cpmPort}&type=${type}`
       )
         .then(function(response) {
           if (response) {
