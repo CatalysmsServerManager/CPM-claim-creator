@@ -47,6 +47,7 @@
 
 
 <script>
+// TODO: Add undo buttons for history entries
 import { eventBus } from "../main";
 
 export default {

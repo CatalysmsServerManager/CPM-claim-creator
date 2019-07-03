@@ -5,10 +5,15 @@ cache: npm
 script:
   - npm run lint
   - npm run build
+
+after_success:
+  - npm run package
+
 deploy:
-  provider: pages
-  local_dir: dist
+  provider: releases
   skip_cleanup: true
+  file_glob: true
+  file: "dist/cpm-map-*.tgz"
   github_token: $GITHUB_TOKEN
   on:
     branch: master
