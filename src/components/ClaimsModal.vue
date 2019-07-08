@@ -125,7 +125,9 @@ export default {
       }
     },
     getClaimType(type) {
-      return fetch(`api/getmapclaims?type=${type}`)
+      return fetch(
+        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${this.cpmPort}&type=${type}`
+      )
         .then(function(response) {
           if (response) {
             return response.json();
