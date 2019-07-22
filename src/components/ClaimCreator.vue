@@ -4,7 +4,11 @@
       <b-alert variant="warning" show>You must select an area on the map first!</b-alert>
     </div>
 
-    <div v-if="selectedArea !== null ">
+    <div v-if="selectedArea !== null && this.area < 1">
+      <b-alert variant="warning" show>You must select an area that is atleast 3x3 blocks big!</b-alert>
+    </div>
+
+    <div v-if="selectedArea !== null && this.area > 1 ">
       <div>
         <div>
           You are creating a claim that is
