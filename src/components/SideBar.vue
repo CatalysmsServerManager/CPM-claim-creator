@@ -1,6 +1,6 @@
 <template>
   <div class="sidenav">
-    <h1>CPM</h1>
+    <img src="img/CPM.png" />
     <a href="#" v-b-modal.server-settings>Server settings</a>
     <a href="#" v-b-modal.claims>Claims</a>
     <a href="#" v-b-modal.commands>
@@ -58,6 +58,13 @@ export default {
 .sidenav h1 {
   text-align: center;
   color: white;
+}
+
+.sidenav img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }
 
 /* The navigation menu links */
