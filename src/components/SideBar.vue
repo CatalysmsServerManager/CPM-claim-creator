@@ -1,6 +1,6 @@
 <template>
   <div class="sidenav">
-    <h1>CPM Advanced Claim creator</h1>
+    <h1>CPM</h1>
     <a href="#" v-b-modal.server-settings>Server settings</a>
     <a href="#" v-b-modal.claims>Claims</a>
     <a href="#" v-b-modal.commands>
@@ -15,6 +15,7 @@
       Discord
       <font-awesome-icon icon="external-link-alt" size="xs" />
     </a>
+    <session-handler></session-handler>
     <server-settings></server-settings>
     <claims></claims>
     <commands-modal></commands-modal>
@@ -51,6 +52,7 @@ export default {
   background-color: #111; /* Black */
   overflow-x: hidden; /* Disable horizontal scroll */
   padding-top: 20px;
+  color: #818181;
 }
 
 .sidenav h1 {
@@ -63,7 +65,6 @@ export default {
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   font-size: 25px;
-  color: #818181;
   display: block;
 }
 

@@ -22,6 +22,7 @@ import ServerSettings from './components/ServerSettings.vue';
 import ClaimsModal from './components/ClaimsModal.vue';
 import ClaimCreator from './components/ClaimCreator.vue';
 import CommandsModal from './components/CommandsModal.vue';
+import SessionHandler from './components/SessionHandler.vue';
 
 require('../node_modules/leaflet/dist/leaflet.css');
 
@@ -42,6 +43,12 @@ window.claimTypes = [
 // Since most maps are not accesible via https, we have to proxy requests through a https enabled API
 window.requestProxy = "https://cpm-api.herokuapp.com"
 
+window.allocsMap = {
+  host: location.hostname,
+  port: parseInt(location.port) - 1,
+  protocol: location.protocol,
+};
+
 library.add(faExternalLinkAlt);
 library.add(faTrashAlt);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -51,6 +58,7 @@ Vue.component('server-settings', ServerSettings)
 Vue.component('claims', ClaimsModal);
 Vue.component('claim-creator', ClaimCreator);
 Vue.component('commands-modal', CommandsModal);
+Vue.component('session-handler', SessionHandler);
 
 Vue.use(BootstrapVue)
 

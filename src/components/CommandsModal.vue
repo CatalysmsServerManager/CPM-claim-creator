@@ -102,9 +102,7 @@ export default {
     async execute() {
       this.executing = true;
       for (const command of this.commands) {
-        const result = await fetch(
-          `${window.requestProxy}/api/command?ip=${this.connectionInfo.ip}&port=${this.connectionInfo.port}&command=${command}&adminUser=${this.connectionInfo.adminUser}&adminToken=${this.connectionInfo.adminToken}`
-        );
+        const result = await fetch(`/api/createadvclaim?command=${command}`);
         const historyObj = {
           success: result.ok,
           command: command,

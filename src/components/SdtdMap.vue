@@ -77,9 +77,8 @@ export default {
       this.connectionInfo = JSON.parse(localStorage.connectionInfo);
     }
 
-    if (this.connectionInfo.ip && this.connectionInfo.port) {
-      this.createMap();
-    }
+    this.createMap();
+
     eventBus.$on("connection-info", connectionInfo => {
       this.connectionInfo = connectionInfo;
       if (this.map != null) {
@@ -199,7 +198,7 @@ export default {
     },
     GetSdtdTileLayer(mapinfo) {
       var tileLayer = L.tileLayer(
-        `http://${this.connectionInfo.ip}:${this.connectionInfo.port}/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
+        `${window.allocsMap.protocol}//${window.allocsMap.host}:${window.allocsMap.port}/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
         {
           maxZoom: mapinfo.maxzoom + 1,
           minZoom: Math.max(0, mapinfo.maxzoom - 5),
@@ -252,9 +251,7 @@ export default {
       }).setView([0, 0], Math.max(0, this.mapInfo.maxzoom - 1));
     },
     getClaims(type) {
-      return fetch(
-        `${window.requestProxy}/api/claims?ip=${this.connectionInfo.ip}&port=${this.cpmPort}&type=${type}`
-      )
+      return fetch(`/api/getmapclaims?type=${type}`)
         .then(function(response) {
           if (response) {
             return response.json();

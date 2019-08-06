@@ -7,14 +7,6 @@
     @ok="onSubmit"
   >
     <div class="my-4">
-      <b-form-group id="input-group-1" label="IP address:" label-for="input-1">
-        <b-form-input id="input-1" v-model="form.ip" required placeholder="123.456.7.8"></b-form-input>
-      </b-form-group>
-
-      <b-form-group id="input-group-1" label="Port:" label-for="input-1">
-        <b-form-input id="input-1" v-model="form.port" required placeholder="8082"></b-form-input>
-      </b-form-group>
-
       <b-form-group id="input-group-1" label="Admin user:" label-for="input-1">
         <b-form-input id="input-1" v-model="form.adminUser" placeholder="user"></b-form-input>
       </b-form-group>
@@ -44,8 +36,6 @@ export default {
   data() {
     return {
       form: {
-        ip: "",
-        port: "",
         adminUser: "",
         adminToken: ""
       },
