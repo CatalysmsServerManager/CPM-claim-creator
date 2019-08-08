@@ -2,8 +2,8 @@
   <div id="map-container">
     <div id="map">
       {{mapMessage}}
-      <div class="leaflet-bottom leaflet-left">
-        <b-button-group size="sm" id="selection-control">
+      <div class="leaflet-bottom leaflet-right">
+        <b-button-group size="sm" id="selection-control" vertical>
           <b-button :disabled="selectionMode === 'area'" @click="areaSelect">Select area</b-button>
           <b-button :disabled="selectionMode === 'region'" @click="regionSelect">Select region</b-button>
           <b-button @click="clearSelection" variant="danger">Clear selection</b-button>
@@ -247,8 +247,15 @@ export default {
 
       this.map = L.map("map", {
         attributionControl: false,
-        crs: SDTD_CRS
+        crs: SDTD_CRS,
+        zoomControl: false
       }).setView([0, 0], Math.max(0, this.mapInfo.maxzoom - 1));
+
+      L.control
+        .zoom({
+          position: "topright"
+        })
+        .addTo(this.map);
     },
     getClaims(type) {
       return fetch(`/api/getmapclaims?type=${type}`)
@@ -279,6 +286,7 @@ export default {
         rectangles.push(this.createClaimRectangle(claim, claimType));
       }
       this.layers[claimType] = new L.LayerGroup(rectangles);
+      this.layers[claimType].addTo(this.map);
     },
     createClaimRectangle(claim, type, color) {
       const rectangle = L.rectangle([[claim.W, claim.S], [claim.E, claim.N]], {
@@ -406,12 +414,6 @@ export default {
 </script>
 
 <style scoped>
-#map-container {
-  height: 100%;
-  width: 85%;
-  float: right;
-}
-
 #map {
   height: 100vh;
   width: auto;
