@@ -17,6 +17,15 @@
 <script>
 import L from "leaflet";
 import { eventBus } from "../main";
+import { setInterval } from "timers";
+
+const playerIcon = L.icon({
+  iconUrl: "img/marker-survivor.png",
+  iconRetinaUrl: "img/marker-survivor-2x.png",
+  iconSize: [25, 48],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20]
+});
 
 export default {
   name: "sdtd-map",
@@ -77,6 +86,14 @@ export default {
       this.connectionInfo = JSON.parse(localStorage.connectionInfo);
     }
 
+    this.drawLandClaims();
+    this.drawPlayers();
+
+    setInterval(() => {
+      this.drawLandClaims();
+      this.drawPlayers();
+    }, 30000);
+
     this.createMap();
 
     eventBus.$on("connection-info", connectionInfo => {
@@ -98,6 +115,70 @@ export default {
   },
 
   methods: {
+    getLandClaims() {
+      return fetch(`/api/getlandclaims`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawLandClaims() {
+      const landClaimData = await this.getLandClaims();
+      const claimRadius = (landClaimData.claimsize - 1) / 2;
+      let lcbLayer = this.layers["Land claim blocks"];
+      if (!lcbLayer) {
+        this.layers["Land claim blocks"] = new L.LayerGroup();
+        lcbLayer = this.layers["Land claim blocks"];
+      }
+
+      lcbLayer.clearLayers();
+      for (const lcbOwner of landClaimData.claimowners) {
+        for (const lcb of lcbOwner.claims) {
+          // Create the LCB marker & area
+          const lcbArea = L.rectangle([
+            [lcb.x - claimRadius, lcb.z - claimRadius],
+            [lcb.x + claimRadius, lcb.z + claimRadius]
+          ]).bindPopup(
+            `${lcbOwner.playername} - ${lcbOwner.steamid} <br> Status: ${
+              lcbOwner.claimactive ? "Active" : "Inactive"
+            }`
+          );
+          lcbLayer.addLayer(lcbArea);
+        }
+      }
+      return lcbLayer;
+    },
+    getPlayers() {
+      return fetch(`/api/getplayersonline`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawPlayers() {
+      const currentPlayers = await this.getPlayers();
+      let playersLayer = this.layers["Online players"];
+      if (!playersLayer) {
+        this.layers["Online players"] = new L.LayerGroup();
+        playersLayer = this.layers["Online players"];
+      }
+
+      playersLayer.clearLayers();
+      for (const player of currentPlayers) {
+        // Create the player marker & area
+        const marker = L.marker([player.position.x, player.position.z], {
+          icon: playerIcon
+        }).bindPopup(
+          `${player.name} - ${player.steamid} <br> Position: ${player.position.x} ${player.position.y} ${player.position.z}`
+        );
+        playersLayer.addLayer(marker);
+      }
+      return playersLayer;
+    },
     areaSelect(e) {
       // Make sure the map does not get the event, otherwise an invalid click is registered
       L.DomEvent.stop(e);
