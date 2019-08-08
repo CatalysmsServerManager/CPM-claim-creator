@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.21",
+    "@fortawesome/free-brands-svg-icons": "^5.10.1",
     "@fortawesome/free-solid-svg-icons": "^5.10.1",
     "@fortawesome/vue-fontawesome": "^0.1.6",
     "bootstrap": "^4.3.1",
@@ -19,7 +20,8 @@
     "jsonp": "^0.2.1",
     "leaflet": "^1.5.1",
     "popper.js": "^1.15.0",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vue-sidebar-menu": "^4.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.10.0",

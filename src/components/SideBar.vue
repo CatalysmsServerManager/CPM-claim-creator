@@ -1,98 +1,154 @@
 <template>
-  <div class="sidenav">
-    <img src="img/CPM.png" />
-    <a href="#" v-b-modal.server-settings>Server settings</a>
-    <a href="#" v-b-modal.claims>Claims</a>
-    <a href="#" v-b-modal.commands>
-      Commands
-      <b-badge v-if="commands" pill variant="primary">{{commands}}</b-badge>
-    </a>
-    <a href="https://confluence.catalysm.net/pages/viewpage.action?pageId=1114182" target="_blank">
-      Documentation
-      <font-awesome-icon icon="external-link-alt" size="xs" />
-    </a>
-    <a href="https://catalysm.net/discord" target="_blank">
-      Discord
-      <font-awesome-icon icon="external-link-alt" size="xs" />
-    </a>
-    <session-handler></session-handler>
+  <nav>
+    <sidebar-menu :menu="menu" @item-click="onItemClick">
+      <span slot="toggle-icon">
+        <font-awesome-icon icon="arrows-alt-h" size="xl" />
+      </span>
+      <span slot="dropdown-icon">
+        <font-awesome-icon icon="angle-right" size="xs" />
+      </span>
+    </sidebar-menu>
+
     <server-settings></server-settings>
     <claims></claims>
     <commands-modal></commands-modal>
-  </div>
+  </nav>
 </template>
-
+ 
 <script>
 import { eventBus } from "../main";
 
 export default {
-  name: "SideBar",
+  async mounted() {
+    const userMenuEntry = this.menu.filter(i => i.title == "User")[0];
+    const commandsMenuEntry = this.menu.filter(i => i.title == "Commands")[0];
+
+    eventBus.$on("set-commands", amount => {
+      commandsMenuEntry.badge.text = amount;
+    });
+
+    this.userStatus = await this.getUserStatus();
+
+    if (this.userStatus.loggedin) {
+      userMenuEntry.child.push({
+        title: this.userStatus.username
+      });
+      userMenuEntry.child.push({
+        title: `Permission level: ${this.userStatus.permissionlevel}`
+      });
+      userMenuEntry.child.push({
+        href: "/session/logout",
+        title: "Log out"
+      });
+    } else {
+      userMenuEntry.title = "Log in";
+      userMenuEntry.href = "/session/login";
+    }
+  },
+  methods: {
+    // Hacky way to get the bootstrap modals to work with the sidebar component
+    onItemClick(event, item) {
+      if (item.attributes) {
+        let modalId = item.attributes["v-b-modal"];
+        if (modalId) {
+          return this.$bvModal.show(modalId);
+        }
+      }
+    },
+    getUserStatus() {
+      return fetch("/userstatus")
+        .then(response => {
+          return response.json();
+        })
+        .then(data => {
+          return data;
+        });
+    }
+  },
   data() {
     return {
-      commands: 0
+      commands: 0,
+      userStatus: {
+        loggedin: false,
+        username: null,
+        permissionlevel: 2000,
+        permissions: []
+      },
+      menu: [
+        {
+          header: true,
+          title: "CPM Web UI",
+          hiddenOnCollapse: true
+        },
+        {
+          title: "Connection settings",
+          icon: {
+            element: "font-awesome-icon",
+            attributes: { icon: "cog" }
+          },
+          attributes: {
+            "v-b-modal": "server-settings"
+          }
+        },
+        {
+          title: "Claims",
+          icon: {
+            element: "font-awesome-icon",
+            attributes: { icon: "border-style" }
+          },
+          attributes: {
+            "v-b-modal": "claims"
+          }
+        },
+        {
+          title: "Commands",
+          icon: {
+            element: "font-awesome-icon",
+            attributes: { icon: "terminal" }
+          },
+          attributes: {
+            "v-b-modal": "commands"
+          },
+          badge: {
+            text: 0,
+            class: "vsm--badge_default"
+            // attributes: {}
+            // element: 'span'
+          }
+        },
+        {
+          title: "User",
+          icon: {
+            element: "font-awesome-icon",
+            attributes: { icon: "user" }
+          },
+          child: []
+        },
+        {
+          title: "Help",
+          icon: {
+            element: "font-awesome-icon",
+            attributes: { icon: "question-circle" }
+          },
+          child: [
+            {
+              href: "https://docs.csmm.app/en/CPM/",
+              title: "Documentation",
+              attributes: {
+                target: "_blank"
+              }
+            },
+            {
+              href: "https://catalysm.net/discord",
+              title: "Discord",
+              attributes: {
+                target: "_blank"
+              }
+            }
+          ]
+        }
+      ]
     };
-  },
-  mounted() {
-    eventBus.$on("set-commands", amount => {
-      this.commands = amount;
-    });
   }
 };
-</script>
-
-<style scoped>
-/* The sidebar menu */
-.sidenav {
-  height: 100%; /* Full-height: remove this if you want "auto" height */
-  width: 15%; /* Set the width of the sidebar */
-  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  left: 0;
-  background-color: #111; /* Black */
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top: 20px;
-  color: #818181;
-}
-
-.sidenav h1 {
-  text-align: center;
-  color: white;
-}
-
-.sidenav img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-}
-
-/* The navigation menu links */
-.sidenav a {
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  font-size: 25px;
-  display: block;
-}
-
-/* When you mouse over the navigation links, change their color */
-.sidenav a:hover {
-  color: #f1f1f1;
-}
-
-/* Style page content */
-.main {
-  margin-left: 15%; /* Same as the width of the sidebar */
-  padding: 0px 10px;
-}
-
-/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidenav {
-    padding-top: 15px;
-  }
-  .sidenav a {
-    font-size: 18px;
-  }
-}
-</style>
+</script> 
