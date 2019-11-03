@@ -88,10 +88,12 @@ export default {
 
     this.drawLandClaims();
     this.drawPlayers();
+    this.drawHomes();
 
     setInterval(() => {
       this.drawLandClaims();
       this.drawPlayers();
+      this.drawHomes();
     }, 30000);
 
     this.createMap();
@@ -178,6 +180,40 @@ export default {
         playersLayer.addLayer(marker);
       }
       return playersLayer;
+    },
+    getHomes() {
+      return fetch(`/api/getplayerhomes`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawHomes() {
+      const currentHomes = await this.getHomes();
+      let homesLayer = this.layers["Homes"];
+      if (!homesLayer) {
+        this.layers["Homes"] = new L.LayerGroup();
+        homesLayer = this.layers["Homes"];
+      }
+
+      homesLayer.clearLayers();
+      for (const home of currentHomes.homeowners) {
+        const homeRec = this.createClaimRectangle(
+          {
+            W: home.x - (Math.floor(currentHomes.homesize) / 2),
+            E: home.x + (Math.floor(currentHomes.homesize) / 2),
+            S: home.y - (Math.floor(currentHomes.homesize) / 2),
+            N: home.y + (Math.floor(currentHomes.homesize) / 2)
+          },
+          undefined,
+          "green"
+        ).bindPopup(
+          `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
+        );
+        homesLayer.addLayer(homeRec);
+      }
     },
     areaSelect(e) {
       // Make sure the map does not get the event, otherwise an invalid click is registered
