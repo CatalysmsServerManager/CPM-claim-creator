@@ -242,10 +242,10 @@ export default {
       for (const home of currentHomes.homeowners) {
         const homeRec = this.createClaimRectangle(
           {
-            W: home.x - Math.floor(currentHomes.homesize) / 2,
-            E: home.x + Math.floor(currentHomes.homesize) / 2,
-            S: home.y - Math.floor(currentHomes.homesize) / 2,
-            N: home.y + Math.floor(currentHomes.homesize) / 2
+            W: home.x - currentHomes.homesize,
+            E: home.x + currentHomes.homesize,
+            S: home.y - currentHomes.homesize,
+            N: home.y + currentHomes.homesize
           },
           undefined,
           home.active ? "green" : "red"
