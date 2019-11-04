@@ -1,9 +1,7 @@
 <template>
   <div id="map-container">
     <div id="map">
-      <center>
-      {{mapMessage}}
-      </center>
+      <center>{{mapMessage}}</center>
       <div class="leaflet-bottom leaflet-right">
         <b-button-group size="sm" id="selection-control" vertical>
           <b-button :disabled="selectionMode === 'area'" @click="areaSelect">Select area</b-button>
@@ -109,11 +107,11 @@ export default {
         this.map.remove();
         this.map = null;
       }
-        this.createMap();
-        this.drawLandClaims();
-        this.drawPlayers();
-        this.drawHomes();
-        this.drawQuestPoi();
+      this.createMap();
+      this.drawLandClaims();
+      this.drawPlayers();
+      this.drawHomes();
+      this.drawQuestPoi();
     });
 
     eventBus.$on("refresh-claims", () => {
@@ -257,8 +255,8 @@ export default {
           {
             W: home.x - currentHomes.homesize,
             E: home.x + currentHomes.homesize,
-            S: home.y - currentHomes.homesize,
-            N: home.y + currentHomes.homesize
+            S: home.z - currentHomes.homesize,
+            N: home.z + currentHomes.homesize
           },
           undefined,
           home.active ? "green" : "red"
