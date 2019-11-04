@@ -1,6 +1,6 @@
 {
   "name": "cpm-map",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -9,23 +9,22 @@
     "package": "npm run build && cp package.json dist/package.json && cd dist/ && npm pack"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.22",
-    "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@fortawesome/vue-fontawesome": "^0.1.6",
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/vue-fontawesome": "^0.1.8",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.0-rc.28",
+    "bootstrap-vue": "^2.0.4",
     "core-js": "^2.6.5",
     "jquery": "^3.4.1",
     "jsonp": "^0.2.1",
     "leaflet": "^1.5.1",
     "popper.js": "^1.15.0",
     "vue": "^2.6.10",
-    "vue-sidebar-menu": "^4.0.0"
+    "vue-sidebar-menu": "^4.4.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
-    "@vue/cli-service": "^3.11.0",
+    "@vue/cli-service": "^4.0.5",
     "babel-eslint": "^10.0.3",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",

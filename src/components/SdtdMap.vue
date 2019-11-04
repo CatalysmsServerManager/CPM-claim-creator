@@ -88,10 +88,13 @@ export default {
 
     this.drawLandClaims();
     this.drawPlayers();
+    this.drawHomes();
+    this.drawQuestPoi();
 
     setInterval(() => {
       this.drawLandClaims();
       this.drawPlayers();
+      this.drawHomes();
     }, 30000);
 
     this.createMap();
@@ -178,6 +181,79 @@ export default {
         playersLayer.addLayer(marker);
       }
       return playersLayer;
+    },
+    getQuestPoi(filterClaim) {
+      const link = `/api/getquestpois${
+        filterClaim ? "?filter=bedlcbonly" : ""
+      }`;
+      return fetch(link)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawQuestPoi() {
+      const pois = await this.getQuestPoi();
+
+      let poisLayer = this.layers["Quest POIs"];
+      if (!poisLayer) {
+        this.layers["Quest POIs"] = new L.LayerGroup();
+        poisLayer = this.layers["Quest POIs"];
+      }
+
+      let claimedPoisLayer = this.layers["Claimed quest POIs"];
+      if (!claimedPoisLayer) {
+        this.layers["Claimed quest POIs"] = new L.LayerGroup();
+        claimedPoisLayer = this.layers["Claimed quest POIs"];
+      }
+
+      for (const poi of pois.QuestPOIs) {
+        const poiRec = this.createClaimRectangle({
+          W: poi.minx,
+          E: poi.maxx,
+          S: poi.minz,
+          N: poi.maxz,
+        }, undefined, poi.containsbed ? "red" : "blue");
+
+        poi.containsbed ? claimedPoisLayer.addLayer(poiRec) : poisLayer.addLayer(poiRec);
+        
+      }
+    },
+    getHomes() {
+      return fetch(`/api/getplayerhomes`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawHomes() {
+      const currentHomes = await this.getHomes();
+      let homesLayer = this.layers["Homes"];
+      if (!homesLayer) {
+        this.layers["Homes"] = new L.LayerGroup();
+        homesLayer = this.layers["Homes"];
+      }
+
+      homesLayer.clearLayers();
+      for (const home of currentHomes.homeowners) {
+        const homeRec = this.createClaimRectangle(
+          {
+            W: home.x - currentHomes.homesize,
+            E: home.x + currentHomes.homesize,
+            S: home.y - currentHomes.homesize,
+            N: home.y + currentHomes.homesize
+          },
+          undefined,
+          home.active ? "green" : "red"
+        ).bindPopup(
+          `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
+        );
+        homesLayer.addLayer(homeRec);
+      }
     },
     areaSelect(e) {
       // Make sure the map does not get the event, otherwise an invalid click is registered
