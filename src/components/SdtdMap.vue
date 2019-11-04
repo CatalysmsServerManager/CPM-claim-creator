@@ -1,7 +1,9 @@
 <template>
   <div id="map-container">
     <div id="map">
+      <center>
       {{mapMessage}}
+      </center>
       <div class="leaflet-bottom leaflet-right">
         <b-button-group size="sm" id="selection-control" vertical>
           <b-button :disabled="selectionMode === 'area'" @click="areaSelect">Select area</b-button>
@@ -86,26 +88,32 @@ export default {
       this.connectionInfo = JSON.parse(localStorage.connectionInfo);
     }
 
-    this.drawLandClaims();
-    this.drawPlayers();
-    this.drawHomes();
-    this.drawQuestPoi();
-
-    setInterval(() => {
+    if (this.connectionInfo.adminUser && this.connectionInfo.adminToken) {
       this.drawLandClaims();
       this.drawPlayers();
       this.drawHomes();
-    }, 30000);
+      this.drawQuestPoi();
 
-    this.createMap();
+      setInterval(() => {
+        this.drawLandClaims();
+        this.drawPlayers();
+        this.drawHomes();
+      }, 30000);
+
+      this.createMap();
+    }
 
     eventBus.$on("connection-info", connectionInfo => {
       this.connectionInfo = connectionInfo;
       if (this.map != null) {
         this.map.remove();
         this.map = null;
-        this.createMap();
       }
+        this.createMap();
+        this.drawLandClaims();
+        this.drawPlayers();
+        this.drawHomes();
+        this.drawQuestPoi();
     });
 
     eventBus.$on("refresh-claims", () => {
@@ -210,15 +218,20 @@ export default {
       }
 
       for (const poi of pois.QuestPOIs) {
-        const poiRec = this.createClaimRectangle({
-          W: poi.minx,
-          E: poi.maxx,
-          S: poi.minz,
-          N: poi.maxz,
-        }, undefined, poi.containsbed ? "red" : "blue");
+        const poiRec = this.createClaimRectangle(
+          {
+            W: poi.minx,
+            E: poi.maxx,
+            S: poi.minz,
+            N: poi.maxz
+          },
+          undefined,
+          poi.containsbed ? "red" : "blue"
+        );
 
-        poi.containsbed ? claimedPoisLayer.addLayer(poiRec) : poisLayer.addLayer(poiRec);
-        
+        poi.containsbed
+          ? claimedPoisLayer.addLayer(poiRec)
+          : poisLayer.addLayer(poiRec);
       }
     },
     getHomes() {
