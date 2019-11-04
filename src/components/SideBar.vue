@@ -41,8 +41,21 @@ export default {
         title: "Log out"
       });
     } else {
-      userMenuEntry.title = "Log in";
-      userMenuEntry.href = "/session/login";
+      this.menu = [];
+      this.menu.push({
+        title: "User",
+        icon: {
+          element: "font-awesome-icon",
+          attributes: { icon: "user" }
+        },
+        child: []
+      });
+      const userMenuEntry = this.menu.filter(i => i.title == "User")[0];
+      userMenuEntry.title = "Not logged in";
+      userMenuEntry.child.push({
+        title: "Log in via Steam",
+        href: "/session/login"
+      });
     }
   },
   methods: {
