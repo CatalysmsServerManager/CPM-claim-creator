@@ -208,7 +208,7 @@ export default {
             N: home.y + (Math.floor(currentHomes.homesize) / 2)
           },
           undefined,
-          "green"
+          home.active ? "green" : "red"
         ).bindPopup(
           `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
         );
