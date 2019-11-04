@@ -89,6 +89,7 @@ export default {
     this.drawLandClaims();
     this.drawPlayers();
     this.drawHomes();
+    this.drawQuestPoi();
 
     setInterval(() => {
       this.drawLandClaims();
@@ -181,6 +182,45 @@ export default {
       }
       return playersLayer;
     },
+    getQuestPoi(filterClaim) {
+      const link = `/api/getquestpois${
+        filterClaim ? "?filter=bedlcbonly" : ""
+      }`;
+      return fetch(link)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawQuestPoi() {
+      const pois = await this.getQuestPoi();
+
+      let poisLayer = this.layers["Quest POIs"];
+      if (!poisLayer) {
+        this.layers["Quest POIs"] = new L.LayerGroup();
+        poisLayer = this.layers["Quest POIs"];
+      }
+
+      let claimedPoisLayer = this.layers["Claimed quest POIs"];
+      if (!claimedPoisLayer) {
+        this.layers["Claimed quest POIs"] = new L.LayerGroup();
+        claimedPoisLayer = this.layers["Claimed quest POIs"];
+      }
+
+      for (const poi of pois.QuestPOIs) {
+        const poiRec = this.createClaimRectangle({
+          W: poi.minx,
+          E: poi.maxx,
+          S: poi.minz,
+          N: poi.maxz,
+        }, undefined, poi.containsbed ? "red" : "blue");
+
+        poi.containsbed ? claimedPoisLayer.addLayer(poiRec) : poisLayer.addLayer(poiRec);
+        
+      }
+    },
     getHomes() {
       return fetch(`/api/getplayerhomes`)
         .then(function(response) {
@@ -202,13 +242,13 @@ export default {
       for (const home of currentHomes.homeowners) {
         const homeRec = this.createClaimRectangle(
           {
-            W: home.x - (Math.floor(currentHomes.homesize) / 2),
-            E: home.x + (Math.floor(currentHomes.homesize) / 2),
-            S: home.y - (Math.floor(currentHomes.homesize) / 2),
-            N: home.y + (Math.floor(currentHomes.homesize) / 2)
+            W: home.x - currentHomes.homesize,
+            E: home.x + currentHomes.homesize,
+            S: home.y - currentHomes.homesize,
+            N: home.y + currentHomes.homesize
           },
           undefined,
-          "green"
+          home.active ? "green" : "red"
         ).bindPopup(
           `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
         );
