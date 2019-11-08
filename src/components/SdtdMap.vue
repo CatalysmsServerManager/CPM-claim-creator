@@ -91,6 +91,7 @@ export default {
       this.drawPlayers();
       this.drawHomes();
       this.drawQuestPoi();
+      this.drawTraders();
 
       setInterval(() => {
         this.drawLandClaims();
@@ -158,6 +159,39 @@ export default {
         }
       }
       return lcbLayer;
+    },
+    getTraders() {
+      return fetch(`/api/gettraders`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawTraders() {
+      const { Traders } = await this.getTraders();
+      let tradersLayer = this.layers["Traders"];
+      if (!tradersLayer) {
+        this.layers["Traders"] = new L.LayerGroup();
+        tradersLayer = this.layers["Traders"];
+      }
+
+      tradersLayer.clearLayers();
+      for (const trader of Traders) {
+        const traderRec = this.createClaimRectangle(
+          {
+            W: trader.minx,
+            E: trader.maxx,
+            S: trader.minz,
+            N: trader.maxz
+          },
+          undefined,
+          "green"
+        );
+        traderRec.bindPopup(trader.name);
+        tradersLayer.addLayer(traderRec);
+      }
     },
     getPlayers() {
       return fetch(`/api/getplayersonline`)
@@ -426,7 +460,21 @@ export default {
         .addTo(this.map);
     },
     getClaims(type) {
-      return fetch(`/api/getmapclaims?type=${type}`)
+      if (type === "resetregion") {
+        return fetch(`/api/getresetregions`)
+          .then(function(response) {
+            if (response) {
+              return response.json();
+            } else {
+              return [];
+            }
+          })
+          .then(function(data) {
+            return data;
+          });
+      }
+
+      return fetch(`/api/getadvclaims?type=${type}`)
         .then(function(response) {
           if (response) {
             return response.json();
