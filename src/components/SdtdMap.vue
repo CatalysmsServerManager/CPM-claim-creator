@@ -92,6 +92,7 @@ export default {
       this.drawHomes();
       this.drawQuestPoi();
       this.drawTraders();
+      this.drawPois();
 
       setInterval(() => {
         this.drawLandClaims();
@@ -159,6 +160,40 @@ export default {
         }
       }
       return lcbLayer;
+    },
+    getPois() {
+      return fetch(`/api/getallpois`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawPois() {
+      const { AllPOIs: pois } = await this.getPois();
+      let poisLayer = this.layers["POIs"];
+      if (!poisLayer) {
+        this.layers["POIs"] = new L.LayerGroup();
+        poisLayer = this.layers["POIs"];
+      }
+
+      for (const poi of pois) {
+        const poiRec = this.createClaimRectangle(
+          {
+            W: poi.minx,
+            E: poi.maxx,
+            S: poi.minz,
+            N: poi.maxz
+          },
+          undefined,
+          "orange"
+        );
+        poiRec.bindPopup(
+          `${poi.name} - ${poi.containsbed ? "Contains bed" : "Unclaimed"}`
+        );
+        poisLayer.addLayer(poiRec);
+      }
     },
     getTraders() {
       return fetch(`/api/gettraders`)
