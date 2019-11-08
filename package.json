@@ -20,7 +20,7 @@
     "leaflet": "^1.5.1",
     "popper.js": "^1.15.0",
     "vue": "^2.6.10",
-    "vue-sidebar-menu": "^4.4.1"
+    "vue-sidebar-menu": "^4.4.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",
