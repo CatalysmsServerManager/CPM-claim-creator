@@ -82,26 +82,20 @@ export default {
   },
 
   mounted() {
-    if (localStorage.connectionInfo) {
-      this.connectionInfo = JSON.parse(localStorage.connectionInfo);
-    }
+    this.drawLandClaims();
+    this.drawPlayers();
+    this.drawHomes();
+    this.drawQuestPoi();
+    this.drawTraders();
+    this.drawPois();
 
-    if (this.connectionInfo.adminUser && this.connectionInfo.adminToken) {
+    setInterval(() => {
       this.drawLandClaims();
       this.drawPlayers();
       this.drawHomes();
-      this.drawQuestPoi();
-      this.drawTraders();
-      this.drawPois();
+    }, 30000);
 
-      setInterval(() => {
-        this.drawLandClaims();
-        this.drawPlayers();
-        this.drawHomes();
-      }, 30000);
-
-      this.createMap();
-    }
+    this.createMap();
 
     eventBus.$on("connection-info", connectionInfo => {
       this.connectionInfo = connectionInfo;
@@ -434,18 +428,13 @@ export default {
       });
     },
     GetSdtdTileLayer(mapinfo) {
-      var tileLayer = L.tileLayer(
-        `${window.allocsMap.protocol}//${window.allocsMap.host}:${window.allocsMap.port}/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
-        {
-          maxZoom: mapinfo.maxzoom + 1,
-          minZoom: Math.max(0, mapinfo.maxzoom - 5),
-          maxNativeZoom: mapinfo.maxzoom,
-          minNativeZoom: 0,
-          tileSize: mapinfo.tilesize,
-          adminUser: this.connectionInfo.adminUser,
-          adminToken: this.connectionInfo.adminToken
-        }
-      );
+      var tileLayer = L.tileLayer(`/map/{z}/{x}/{y}.png`, {
+        maxZoom: mapinfo.maxzoom + 1,
+        minZoom: Math.max(0, mapinfo.maxzoom - 5),
+        maxNativeZoom: mapinfo.maxzoom,
+        minNativeZoom: 0,
+        tileSize: mapinfo.tilesize
+      });
 
       tileLayer.getTileUrl = function(coords) {
         coords.y = -coords.y - 1;
