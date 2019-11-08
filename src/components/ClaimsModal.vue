@@ -103,10 +103,10 @@ export default {
       this.selected = items;
     },
     async getClaims() {
-      const resetRegions = await this.getClaimType("resetregion");
+      const resetRegions = await this.getClaims("resetregion");
 
       for (const claimType of this.claimTypes) {
-        const claims = await this.getClaimType(claimType);
+        const claims = await this.getClaims(claimType);
         for (const claim of claims) {
           claim["Claim type"] = claimType;
           claim.options = claim.Type;
@@ -123,19 +123,6 @@ export default {
         resetRegion["Claim type"] = "Reset region";
         this.claims.push(resetRegion);
       }
-    },
-    getClaimType(type) {
-      return fetch(`/api/getmapclaims?type=${type}`)
-        .then(function(response) {
-          if (response) {
-            return response.json();
-          } else {
-            return [];
-          }
-        })
-        .then(function(data) {
-          return data;
-        });
     }
   }
 };
