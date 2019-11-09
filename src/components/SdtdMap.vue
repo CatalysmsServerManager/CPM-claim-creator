@@ -534,9 +534,14 @@ export default {
         weight: 1
       });
       if (type) {
-        const popup = L.popup().setContent(
-          `Name: ${claim.Name} Type: ${type} ${claim.Type}`
-        );
+        let popup;
+        if (type === "resetregion") {
+          popup = L.popup().setContent(`Reset region`);
+        } else {
+          popup = L.popup().setContent(
+            `Name: ${claim.Name} Type: ${type} ${claim.Type}`
+          );
+        }
         rectangle.bindPopup(popup);
       }
       return rectangle;

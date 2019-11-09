@@ -102,7 +102,7 @@ export default {
     async execute() {
       this.executing = true;
       for (const command of this.commands) {
-        const result = await fetch(`/api/createadvclaim?command=${command}`);
+        const result = await fetch(`/api/createadvclaims?command=${command}`);
         const historyObj = {
           success: result.ok,
           command: command,

@@ -56,11 +56,11 @@ export default {
     if (localStorage.connectionInfo) {
       this.connectionInfo = JSON.parse(localStorage.connectionInfo);
     }
-    this.getClaims();
+    this.drawClaims();
 
     eventBus.$on("refresh-claims", () => {
       this.claims = [];
-      this.getClaims();
+      this.drawClaims();
     });
 
     eventBus.$on("area-selected", latLngSelected => {
@@ -102,7 +102,7 @@ export default {
     rowSelected(items) {
       this.selected = items;
     },
-    async getClaims() {
+    async drawClaims() {
       const resetRegions = await this.getClaims("resetregion");
 
       for (const claimType of this.claimTypes) {
@@ -123,6 +123,33 @@ export default {
         resetRegion["Claim type"] = "Reset region";
         this.claims.push(resetRegion);
       }
+    },
+    getClaims(type) {
+      if (type === "resetregion") {
+        return fetch(`/api/getresetregions`)
+          .then(function(response) {
+            if (response) {
+              return response.json();
+            } else {
+              return [];
+            }
+          })
+          .then(function(data) {
+            return data;
+          });
+      }
+
+      return fetch(`/api/getadvclaims?type=${type}`)
+        .then(function(response) {
+          if (response) {
+            return response.json();
+          } else {
+            return [];
+          }
+        })
+        .then(function(data) {
+          return data;
+        });
     }
   }
 };
