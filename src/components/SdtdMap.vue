@@ -27,6 +27,13 @@ const playerIcon = L.icon({
   popupAnchor: [0, -20]
 });
 
+const traderIcon = L.icon({
+  iconUrl: "img/shopping-cart.png",
+  iconSize: [25, 25],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20]
+});
+
 export default {
   name: "sdtd-map",
   data: function() {
@@ -218,7 +225,10 @@ export default {
           undefined,
           "green"
         );
-        traderRec.bindPopup(trader.name);
+        const marker = L.marker([trader.x, trader.z], {
+          icon: traderIcon
+        }).bindPopup(trader.name);
+        tradersLayer.addLayer(marker);
         tradersLayer.addLayer(traderRec);
       }
     },
