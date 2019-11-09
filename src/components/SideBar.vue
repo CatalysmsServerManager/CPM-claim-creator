@@ -34,9 +34,6 @@ export default {
         title: this.userStatus.username
       });
       userMenuEntry.child.push({
-        title: `Permission level: ${this.userStatus.permissionlevel}`
-      });
-      userMenuEntry.child.push({
         href: "/session/logout",
         title: "Log out"
       });
@@ -92,16 +89,6 @@ export default {
           header: true,
           title: "CPM Web UI",
           hiddenOnCollapse: true
-        },
-        {
-          title: "Connection settings",
-          icon: {
-            element: "font-awesome-icon",
-            attributes: { icon: "cog" }
-          },
-          attributes: {
-            "v-b-modal": "server-settings"
-          }
         },
         {
           title: "Claims",

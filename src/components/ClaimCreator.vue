@@ -177,9 +177,11 @@ export default {
       return Math.round(2 * (width + length));
     },
     command() {
-      let commandString = `ccc add ${
-        this.name
-      } ${this.getW()} ${this.getE()} ${this.getN()} ${this.getS()} ${
+      let commandString = `ccc add ${this.name
+        .split(" ")
+        .join(
+          "_"
+        )} ${this.getW()} ${this.getE()} ${this.getN()} ${this.getS()} ${
         this.accessLevel
       } `;
 

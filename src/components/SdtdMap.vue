@@ -27,6 +27,13 @@ const playerIcon = L.icon({
   popupAnchor: [0, -20]
 });
 
+const traderIcon = L.icon({
+  iconUrl: "img/shopping-cart.png",
+  iconSize: [25, 25],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20]
+});
+
 export default {
   name: "sdtd-map",
   data: function() {
@@ -82,24 +89,20 @@ export default {
   },
 
   mounted() {
-    if (localStorage.connectionInfo) {
-      this.connectionInfo = JSON.parse(localStorage.connectionInfo);
-    }
+    this.drawLandClaims();
+    this.drawPlayers();
+    this.drawHomes();
+    this.drawQuestPoi();
+    this.drawTraders();
+    this.drawPois();
 
-    if (this.connectionInfo.adminUser && this.connectionInfo.adminToken) {
+    setInterval(() => {
       this.drawLandClaims();
       this.drawPlayers();
       this.drawHomes();
-      this.drawQuestPoi();
+    }, 30000);
 
-      setInterval(() => {
-        this.drawLandClaims();
-        this.drawPlayers();
-        this.drawHomes();
-      }, 30000);
-
-      this.createMap();
-    }
+    this.createMap();
 
     eventBus.$on("connection-info", connectionInfo => {
       this.connectionInfo = connectionInfo;
@@ -158,6 +161,76 @@ export default {
         }
       }
       return lcbLayer;
+    },
+    getPois() {
+      return fetch(`/api/getallpois`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawPois() {
+      const { AllPOIs: pois } = await this.getPois();
+      let poisLayer = this.layers["POIs"];
+      if (!poisLayer) {
+        this.layers["POIs"] = new L.LayerGroup();
+        poisLayer = this.layers["POIs"];
+      }
+
+      for (const poi of pois) {
+        const poiRec = this.createClaimRectangle(
+          {
+            W: poi.minx,
+            E: poi.maxx,
+            S: poi.minz,
+            N: poi.maxz
+          },
+          undefined,
+          "orange"
+        );
+        poiRec.bindPopup(
+          `${poi.name} - ${poi.containsbed ? "Contains bed" : "Unclaimed"}`
+        );
+        poisLayer.addLayer(poiRec);
+      }
+    },
+    getTraders() {
+      return fetch(`/api/gettraders`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawTraders() {
+      const { Traders } = await this.getTraders();
+      let tradersLayer = this.layers["Traders"];
+      if (!tradersLayer) {
+        this.layers["Traders"] = new L.LayerGroup();
+        tradersLayer = this.layers["Traders"];
+      }
+
+      tradersLayer.clearLayers();
+      for (const trader of Traders) {
+        const traderRec = this.createClaimRectangle(
+          {
+            W: trader.minx,
+            E: trader.maxx,
+            S: trader.minz,
+            N: trader.maxz
+          },
+          undefined,
+          "green"
+        );
+        const marker = L.marker([trader.x, trader.z], {
+          icon: traderIcon
+        }).bindPopup(trader.name);
+        tradersLayer.addLayer(marker);
+        tradersLayer.addLayer(traderRec);
+      }
     },
     getPlayers() {
       return fetch(`/api/getplayersonline`)
@@ -365,18 +438,13 @@ export default {
       });
     },
     GetSdtdTileLayer(mapinfo) {
-      var tileLayer = L.tileLayer(
-        `${window.allocsMap.protocol}//${window.allocsMap.host}:${window.allocsMap.port}/map/{z}/{x}/{y}.png?adminUser={adminUser}&adminToken={adminToken}`,
-        {
-          maxZoom: mapinfo.maxzoom + 1,
-          minZoom: Math.max(0, mapinfo.maxzoom - 5),
-          maxNativeZoom: mapinfo.maxzoom,
-          minNativeZoom: 0,
-          tileSize: mapinfo.tilesize,
-          adminUser: this.connectionInfo.adminUser,
-          adminToken: this.connectionInfo.adminToken
-        }
-      );
+      var tileLayer = L.tileLayer(`/map/{z}/{x}/{y}.png`, {
+        maxZoom: mapinfo.maxzoom + 1,
+        minZoom: Math.max(0, mapinfo.maxzoom - 5),
+        maxNativeZoom: mapinfo.maxzoom,
+        minNativeZoom: 0,
+        tileSize: mapinfo.tilesize
+      });
 
       tileLayer.getTileUrl = function(coords) {
         coords.y = -coords.y - 1;
@@ -426,7 +494,21 @@ export default {
         .addTo(this.map);
     },
     getClaims(type) {
-      return fetch(`/api/getmapclaims?type=${type}`)
+      if (type === "resetregion") {
+        return fetch(`/api/getresetregions`)
+          .then(function(response) {
+            if (response) {
+              return response.json();
+            } else {
+              return [];
+            }
+          })
+          .then(function(data) {
+            return data;
+          });
+      }
+
+      return fetch(`/api/getadvclaims?type=${type}`)
         .then(function(response) {
           if (response) {
             return response.json();
@@ -462,9 +544,14 @@ export default {
         weight: 1
       });
       if (type) {
-        const popup = L.popup().setContent(
-          `Name: ${claim.Name} Type: ${type} ${claim.Type}`
-        );
+        let popup;
+        if (type === "resetregion") {
+          popup = L.popup().setContent(`Reset region`);
+        } else {
+          popup = L.popup().setContent(
+            `Name: ${claim.Name} Type: ${type} ${claim.Type}`
+          );
+        }
         rectangle.bindPopup(popup);
       }
       return rectangle;
