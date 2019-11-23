@@ -37,6 +37,15 @@ export default {
         href: "/session/logout",
         title: "Log out"
       });
+      for (const permission of this.userStatus.permissions) {
+        if (permission.module !== "cpmcc.Null") {
+          userMenuEntry.child.push({
+            title: `${permission.module.replace("cpmcc.", "")} - ${
+              permission.allowed ? "Yes" : "No"
+            }`
+          });
+        }
+      }
     } else {
       this.menu = [];
       this.menu.push({
