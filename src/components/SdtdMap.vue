@@ -1,18 +1,23 @@
 <template>
   <div id="map-container">
     <div id="map">
-      <center>{{mapMessage}}</center>
+      <center>{{ mapMessage }}</center>
       <div class="leaflet-bottom leaflet-right">
         <b-button-group size="sm" id="selection-control" vertical>
-          <b-button :disabled="selectionMode === 'area'" @click="areaSelect">Select area</b-button>
-          <b-button :disabled="selectionMode === 'region'" @click="regionSelect">Select region</b-button>
-          <b-button @click="clearSelection" variant="danger">Clear selection</b-button>
+          <b-button :disabled="selectionMode === 'area'" @click="areaSelect"
+            >Select area</b-button
+          >
+          <b-button :disabled="selectionMode === 'region'" @click="regionSelect"
+            >Select region</b-button
+          >
+          <b-button @click="clearSelection" variant="danger"
+            >Clear selection</b-button
+          >
         </b-button-group>
       </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import L from "leaflet";
@@ -47,6 +52,12 @@ export default {
         chunksize: 16,
         tilesize: 128,
         maxzoom: 4
+      },
+      userStatus: {
+        loggedin: false,
+        username: null,
+        permissionlevel: 2000,
+        permissions: []
       },
       clickMarkers: [],
       // Rectangles on the map
@@ -88,45 +99,48 @@ export default {
     }
   },
 
-  mounted() {
-    this.drawLandClaims();
-    this.drawPlayers();
-    this.drawHomes();
-    this.drawQuestPoi();
-    this.drawTraders();
-    this.drawPois();
+  async mounted() {
+    this.userStatus = this.getUserStatus();
+    this.userStatus.then(status => {
+      this.userStatus = status;
 
-    setInterval(() => {
-      this.drawLandClaims();
-      this.drawPlayers();
-      this.drawHomes();
-    }, 30000);
+      setInterval(() => {
+        this.drawLandClaims();
+        this.drawPlayers();
+        this.drawHomes();
+        this.drawQuestPoi();
+        this.drawTraders();
+        this.drawPois();
+      }, 30000);
 
-    this.createMap();
-
-    eventBus.$on("connection-info", connectionInfo => {
-      this.connectionInfo = connectionInfo;
-      if (this.map != null) {
-        this.map.remove();
-        this.map = null;
-      }
       this.createMap();
-      this.drawLandClaims();
-      this.drawPlayers();
-      this.drawHomes();
-      this.drawQuestPoi();
-    });
 
-    eventBus.$on("refresh-claims", () => {
-      if (this.map != null) {
-        this.map.remove();
-        this.map = null;
-        this.createMap();
-      }
+      eventBus.$on("refresh-claims", () => {
+        if (this.map != null) {
+          this.map.remove();
+          this.map = null;
+          this.createMap();
+        }
+      });
     });
   },
 
   methods: {
+    hasPermission(permModule) {
+      const permission = this.userStatus.permissions.find(
+        p => p.module === permModule
+      );
+      return permission.allowed;
+    },
+    getUserStatus() {
+      return fetch("/userstatus")
+        .then(response => {
+          return response.json();
+        })
+        .then(data => {
+          return data;
+        });
+    },
     getLandClaims() {
       return fetch(`/api/getlandclaims`)
         .then(function(response) {
@@ -137,6 +151,10 @@ export default {
         });
     },
     async drawLandClaims() {
+      if (!this.hasPermission("cpmcc.getlandclaims")) {
+        return;
+      }
+
       const landClaimData = await this.getLandClaims();
       const claimRadius = (landClaimData.claimsize - 1) / 2;
       let lcbLayer = this.layers["Land claim blocks"];
@@ -172,6 +190,10 @@ export default {
         });
     },
     async drawPois() {
+      if (!this.hasPermission("cpmcc.getallpois")) {
+        return;
+      }
+
       const { AllPOIs: pois } = await this.getPois();
       let poisLayer = this.layers["POIs"];
       if (!poisLayer) {
@@ -206,6 +228,10 @@ export default {
         });
     },
     async drawTraders() {
+      if (!this.hasPermission("cpmcc.gettraders")) {
+        return;
+      }
+
       const { Traders } = await this.getTraders();
       let tradersLayer = this.layers["Traders"];
       if (!tradersLayer) {
@@ -242,6 +268,10 @@ export default {
         });
     },
     async drawPlayers() {
+      if (!this.hasPermission("cpmcc.getplayersonline")) {
+        return;
+      }
+
       const currentPlayers = await this.getPlayers();
       let playersLayer = this.layers["Online players"];
       if (!playersLayer) {
@@ -274,6 +304,10 @@ export default {
         });
     },
     async drawQuestPoi() {
+      if (!this.hasPermission("cpmcc.getquestpois")) {
+        return;
+      }
+
       const pois = await this.getQuestPoi();
 
       let poisLayer = this.layers["Quest POIs"];
@@ -315,6 +349,10 @@ export default {
         });
     },
     async drawHomes() {
+      if (!this.hasPermission("cpmcc.getplayerhomes")) {
+        return;
+      }
+
       const currentHomes = await this.getHomes();
       let homesLayer = this.layers["Homes"];
       if (!homesLayer) {
@@ -530,6 +568,16 @@ export default {
       await this.drawClaim("resetregion");
     },
     async drawClaim(claimType) {
+      if (claimType === "resetregion") {
+        if (!this.hasPermission("cpmcc.getresetregions")) {
+          return;
+        }
+      } else {
+        if (!this.hasPermission("cpmcc.getadvclaims")) {
+          return;
+        }
+      }
+
       const claims = await this.getClaims(claimType);
       const rectangles = [];
       for (const claim of claims) {
@@ -539,10 +587,16 @@ export default {
       this.layers[claimType].addTo(this.map);
     },
     createClaimRectangle(claim, type, color) {
-      const rectangle = L.rectangle([[claim.W, claim.S], [claim.E, claim.N]], {
-        color: color || this.activeColor,
-        weight: 1
-      });
+      const rectangle = L.rectangle(
+        [
+          [claim.W, claim.S],
+          [claim.E, claim.N]
+        ],
+        {
+          color: color || this.activeColor,
+          weight: 1
+        }
+      );
       if (type) {
         let popup;
         if (type === "resetregion") {
@@ -561,6 +615,12 @@ export default {
 
       this.tileLayer.addTo(this.map);
       await this.drawAllClaims();
+      await this.drawLandClaims();
+      await this.drawPlayers();
+      await this.drawHomes();
+      await this.drawQuestPoi();
+      await this.drawTraders();
+      await this.drawPois();
       this.layers["Regions"] = this.getRegionLayer(this.mapInfo);
       L.control.layers(null, this.layers).addTo(this.map);
     },
