@@ -334,9 +334,11 @@ export default {
           poi.containsbed ? "red" : "blue"
         ).bindPopup(poi.name);
 
-        poi.containsbed
-          ? claimedPoisLayer.addLayer(poiRec)
-          : poisLayer.addLayer(poiRec);
+        poisLayer.addLayer(poiRec);
+
+        if (poi.containsbed) {
+          claimedPoisLayer.addLayer(poiRec);
+        }
       }
     },
     getHomes() {
