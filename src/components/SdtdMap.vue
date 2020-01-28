@@ -332,7 +332,7 @@ export default {
           },
           undefined,
           poi.containsbed ? "red" : "blue"
-        );
+        ).bindPopup(poi.name);
 
         poi.containsbed
           ? claimedPoisLayer.addLayer(poiRec)
