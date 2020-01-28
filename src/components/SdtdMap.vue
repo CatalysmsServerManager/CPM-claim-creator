@@ -32,6 +32,13 @@ const playerIcon = L.icon({
   popupAnchor: [0, -20]
 });
 
+const homeIcon = L.icon({
+  iconUrl: "img/home-icon.png",
+  iconSize: [25, 25],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20]
+});
+
 const traderIcon = L.icon({
   iconUrl: "img/shopping-cart.png",
   iconSize: [25, 25],
@@ -373,10 +380,16 @@ export default {
           },
           undefined,
           home.active ? "green" : "red"
-        ).bindPopup(
+        );
+
+        const marker = L.marker([home.x, home.z], {
+          icon: homeIcon
+        }).bindPopup(
           `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
         );
+
         homesLayer.addLayer(homeRec);
+        homesLayer.addLayer(marker);
       }
     },
     areaSelect(e) {
