@@ -9,23 +9,6 @@
 <script>
 export default {
   name: "app",
-  data() {
-    return {
-      claimTypes: [
-        "hostilefree",
-        "notify",
-        "command",
-        "leveled",
-        "reversed",
-        "normal",
-        "timed",
-        "portal",
-        "openhours",
-        "playerlevel",
-        "lcbfree"
-      ]
-    };
-  }
 };
 </script>
 
