@@ -29,21 +29,21 @@ const playerIcon = L.icon({
   iconRetinaUrl: "img/marker-survivor-2x.png",
   iconSize: [25, 48],
   iconAnchor: [12, 24],
-  popupAnchor: [0, -20]
+  popupAnchor: [0, -20],
 });
 
 const homeIcon = L.icon({
   iconUrl: "img/home-icon.png",
   iconSize: [25, 25],
   iconAnchor: [12, 24],
-  popupAnchor: [0, -20]
+  popupAnchor: [0, -20],
 });
 
 const traderIcon = L.icon({
   iconUrl: "img/shopping-cart.png",
   iconSize: [25, 25],
   iconAnchor: [12, 24],
-  popupAnchor: [0, -20]
+  popupAnchor: [0, -20],
 });
 
 export default {
@@ -58,13 +58,13 @@ export default {
         regionsize: 512,
         chunksize: 16,
         tilesize: 128,
-        maxzoom: 4
+        maxzoom: 4,
       },
       userStatus: {
         loggedin: false,
         username: null,
         permissionlevel: 2000,
-        permissions: []
+        permissions: [],
       },
       clickMarkers: [],
       // Rectangles on the map
@@ -77,7 +77,7 @@ export default {
         ip: "",
         port: "",
         adminUser: "",
-        adminToken: ""
+        adminToken: "",
       },
       selectionMode: "area",
       colors: [
@@ -91,10 +91,11 @@ export default {
         "brown",
         "coral",
         "chocolate",
-        "skyblue"
+        "skyblue",
+        "#fc079e",
       ],
       // After all claims for a type are finished drawing, this is incremented
-      colorIterator: 0
+      colorIterator: 0,
     };
   },
   computed: {
@@ -103,12 +104,12 @@ export default {
     },
     activeColor: function() {
       return this.colors[this.colorIterator];
-    }
+    },
   },
 
   async mounted() {
     this.userStatus = this.getUserStatus();
-    this.userStatus.then(status => {
+    this.userStatus.then((status) => {
       this.userStatus = status;
 
       setInterval(() => {
@@ -135,16 +136,16 @@ export default {
   methods: {
     hasPermission(permModule) {
       const permission = this.userStatus.permissions.find(
-        p => p.module === permModule
+        (p) => p.module === permModule
       );
       return permission.allowed;
     },
     getUserStatus() {
       return fetch("/userstatus")
-        .then(response => {
+        .then((response) => {
           return response.json();
         })
-        .then(data => {
+        .then((data) => {
           return data;
         });
     },
@@ -176,7 +177,7 @@ export default {
           // Create the LCB marker & area
           const lcbArea = L.rectangle([
             [lcb.x - claimRadius, lcb.z - claimRadius],
-            [lcb.x + claimRadius, lcb.z + claimRadius]
+            [lcb.x + claimRadius, lcb.z + claimRadius],
           ]).bindPopup(
             `${lcbOwner.playername} - ${lcbOwner.steamid} <br> Status: ${
               lcbOwner.claimactive ? "Active" : "Inactive"
@@ -214,7 +215,7 @@ export default {
             W: poi.minx,
             E: poi.maxx,
             S: poi.minz,
-            N: poi.maxz
+            N: poi.maxz,
           },
           undefined,
           "orange"
@@ -253,13 +254,13 @@ export default {
             W: trader.minx,
             E: trader.maxx,
             S: trader.minz,
-            N: trader.maxz
+            N: trader.maxz,
           },
           undefined,
           "green"
         );
         const marker = L.marker([trader.x, trader.z], {
-          icon: traderIcon
+          icon: traderIcon,
         }).bindPopup(trader.name);
         tradersLayer.addLayer(marker);
         tradersLayer.addLayer(traderRec);
@@ -290,9 +291,11 @@ export default {
       for (const player of currentPlayers) {
         // Create the player marker & area
         const marker = L.marker([player.position.x, player.position.z], {
-          icon: playerIcon
+          icon: playerIcon,
         }).bindPopup(
-          `${player.name} - ${player.steamid} <br> Position: ${player.position.x} ${player.position.y} ${player.position.z}`
+          `${player.name} - ${player.steamid} <br> Position: ${
+            player.position.x
+          } ${player.position.y} ${player.position.z}`
         );
         playersLayer.addLayer(marker);
       }
@@ -335,7 +338,7 @@ export default {
             W: poi.minx,
             E: poi.maxx,
             S: poi.minz,
-            N: poi.maxz
+            N: poi.maxz,
           },
           undefined,
           poi.containsbed ? "red" : "blue"
@@ -376,16 +379,18 @@ export default {
             W: home.x - currentHomes.homesize,
             E: home.x + currentHomes.homesize,
             S: home.z - currentHomes.homesize,
-            N: home.z + currentHomes.homesize
+            N: home.z + currentHomes.homesize,
           },
           undefined,
           home.active ? "green" : "red"
         );
 
         const marker = L.marker([home.x, home.z], {
-          icon: homeIcon
+          icon: homeIcon,
         }).bindPopup(
-          `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${home.z}`
+          `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${
+            home.z
+          }`
         );
 
         homesLayer.addLayer(homeRec);
@@ -434,8 +439,8 @@ export default {
       this.mapMessage = "";
       this.initMap();
       this.initLayers();
-
-      this.map.on("click", event => {
+      this.createCoordinateControl();
+      this.map.on("click", (event) => {
         if (this.selectionMode === "area") {
           if (this.clickMarkers.length > 1) {
             this.clickMarkers[0].remove();
@@ -452,13 +457,13 @@ export default {
           if (this.clickMarkers.length === 2) {
             const latLngSelected = [
               this.clickMarkers[0].getLatLng(),
-              this.clickMarkers[1].getLatLng()
+              this.clickMarkers[1].getLatLng(),
             ];
             if (this.selectedArea) {
               this.selectedArea.remove();
             }
             const selectedArea = L.rectangle(latLngSelected, {
-              weight: 1
+              weight: 1,
             }).addTo(this.map);
 
             this.selectedArea = selectedArea;
@@ -475,7 +480,7 @@ export default {
             N: region.lng * this.mapInfo.regionsize + this.mapInfo.regionsize,
             S: region.lng * this.mapInfo.regionsize,
             Name: regionName,
-            Type: "To be confirmed reset region"
+            Type: "To be confirmed reset region",
           };
           const regionRec = this.createClaimRectangle(
             claimDetails,
@@ -496,7 +501,7 @@ export default {
         minZoom: Math.max(0, mapinfo.maxzoom - 5),
         maxNativeZoom: mapinfo.maxzoom,
         minNativeZoom: 0,
-        tileSize: mapinfo.tilesize
+        tileSize: mapinfo.tilesize,
       });
 
       tileLayer.getTileUrl = function(coords) {
@@ -522,7 +527,7 @@ export default {
             point.x * Math.pow(2, mapInfo.maxzoom),
             point.y * Math.pow(2, mapInfo.maxzoom)
           );
-        }
+        },
       };
 
       const SDTD_CRS = L.extend({}, L.CRS.Simple, {
@@ -531,18 +536,18 @@ export default {
 
         scale: function(zoom) {
           return Math.pow(2, zoom);
-        }
+        },
       });
 
       this.map = L.map("map", {
         attributionControl: false,
         crs: SDTD_CRS,
-        zoomControl: false
+        zoomControl: false,
       }).setView([0, 0], Math.max(0, this.mapInfo.maxzoom - 1));
 
       L.control
         .zoom({
-          position: "topright"
+          position: "topright",
         })
         .addTo(this.map);
     },
@@ -602,16 +607,10 @@ export default {
       this.layers[claimType].addTo(this.map);
     },
     createClaimRectangle(claim, type, color) {
-      const rectangle = L.rectangle(
-        [
-          [claim.W, claim.S],
-          [claim.E, claim.N]
-        ],
-        {
-          color: color || this.activeColor,
-          weight: 1
-        }
-      );
+      const rectangle = L.rectangle([[claim.W, claim.S], [claim.E, claim.N]], {
+        color: color || this.activeColor,
+        weight: 1,
+      });
       if (type) {
         let popup;
         if (type === "resetregion") {
@@ -665,7 +664,7 @@ export default {
         maxZoom: mapInfo.maxzoom + 1,
         minZoom: 0,
         maxNativeZoom: mapInfo.maxzoom + 1,
-        tileSize: mapInfo.tilesize
+        tileSize: mapInfo.tilesize,
       });
 
       regionLayer.createTile = function(tilePoint) {
@@ -738,8 +737,76 @@ export default {
       };
 
       return regionLayer;
-    }
-  }
+    },
+
+    createCoordinateControl() {
+      L.Control.Coordinates = L.Control.extend({
+        options: {
+          position: "bottomleft",
+        },
+
+        onAdd: function(map) {
+          var name = "control-coordinates",
+            container = L.DomUtil.create("div", name + " webmap-control");
+
+          container.innerHTML =
+            "Mouse pos: - N / - E<br/>Last click: - N / - E";
+          L.DomEvent.on(container, "mousemove", L.DomEvent.stopPropagation);
+
+          this._map = map;
+          this._div = container;
+
+          map.on("mousemove", this._onMouseMove, this);
+          map.on("mouseout", this._onMouseOut, this);
+          map.on("click", this._onClick, this);
+
+          return container;
+        },
+
+        _onMouseMove: function(e) {
+          this.lastPos = e.latlng;
+          this._updateText();
+        },
+
+        _onMouseOut: function() {
+          this.lastPos = false;
+          this._updateText();
+        },
+
+        _onClick: function(e) {
+          this.lastClick = e.latlng;
+          this._updateText();
+        },
+
+        _updateText: function() {
+          this._div.innerHTML =
+            "Mouse pos: " +
+            this._formatCoord(this.lastPos) +
+            "<br/>" +
+            "Last click: " +
+            this._formatCoord(this.lastClick);
+        },
+
+        _formatCoord: function(latlng) {
+          if (latlng == false) return "- N / - E";
+          else
+            return (
+              "" +
+              Math.abs(latlng.lng).toFixed(0) +
+              (latlng.lng >= 0 ? " N" : " S") +
+              " / " +
+              Math.abs(latlng.lat).toFixed(0) +
+              (latlng.lat >= 0 ? " E" : " W")
+            );
+        },
+
+        lastPos: false,
+        lastClick: false,
+      });
+      new L.Control.Coordinates({ position: "topright" }).addTo(this.map);
+      return;
+    },
+  },
 };
 </script>
 

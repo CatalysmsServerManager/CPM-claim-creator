@@ -1,36 +1,35 @@
-import Vue from "vue";
-import VueSidebarMenu from "vue-sidebar-menu";
-import "vue-sidebar-menu/dist/vue-sidebar-menu.css";
+import 'bootstrap';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'vue-sidebar-menu/dist/vue-sidebar-menu.css';
 
-import App from "./App.vue";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faExternalLinkAlt,
-  faTrashAlt,
+  faAngleRight,
   faArrowsAltH,
-  faUser,
-  faCog,
   faBorderStyle,
-  faTerminal,
+  faCog,
+  faExternalLinkAlt,
   faQuestionCircle,
-  faAngleRight
-} from "@fortawesome/free-solid-svg-icons";
+  faTerminal,
+  faTrashAlt,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import BootstrapVue from 'bootstrap-vue';
+import Vue from 'vue';
+import VueSidebarMenu from 'vue-sidebar-menu';
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import "bootstrap";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
-import BootstrapVue from "bootstrap-vue";
+import App from './App.vue';
+import ClaimCreator from './components/ClaimCreator.vue';
+import ClaimsModal from './components/ClaimsModal.vue';
+import CommandsModal from './components/CommandsModal.vue';
+import SdtdMap from './components/SdtdMap.vue';
+import SessionHandler from './components/SessionHandler.vue';
+import SideBar from './components/SideBar.vue';
 
 // Custom components
-import SideBar from "./components/SideBar.vue";
-import SdtdMap from "./components/SdtdMap.vue";
-import ClaimsModal from "./components/ClaimsModal.vue";
-import ClaimCreator from "./components/ClaimCreator.vue";
-import CommandsModal from "./components/CommandsModal.vue";
-import SessionHandler from "./components/SessionHandler.vue";
-
 require("../node_modules/leaflet/dist/leaflet.css");
 
 window.claimTypes = [
@@ -44,7 +43,8 @@ window.claimTypes = [
   "portal",
   "openhours",
   "playerlevel",
-  "lcbfree"
+  "lcbfree",
+  "antiblock"
 ];
 
 window.allocsMap = {
