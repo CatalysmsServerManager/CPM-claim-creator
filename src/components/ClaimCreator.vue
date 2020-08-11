@@ -354,6 +354,10 @@ export default {
         case "antiblock":
           commandString += `${this.type}:${this.options.antiBlockBlocks}`;
           break;
+        case "reset":
+          commandString += `${this.type}`;
+          break;
+
         default:
           break;
       }

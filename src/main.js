@@ -44,7 +44,8 @@ window.claimTypes = [
   "openhours",
   "playerlevel",
   "lcbfree",
-  "antiblock"
+  "antiblock",
+  "reset"
 ];
 
 window.allocsMap = {
