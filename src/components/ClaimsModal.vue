@@ -2,7 +2,9 @@
   <div>
     <b-modal id="claims" title="Claims" size="xl" ref="claimsModal">
       <b-button-group>
-        <b-button variant="success" v-b-modal="'claim-creator'">Create</b-button>
+        <b-button variant="success" v-b-modal="'claim-creator'"
+          >Create</b-button
+        >
         <b-button variant="danger" @click="onDelete">Delete claim(s)</b-button>
       </b-button-group>
       <b-table
@@ -16,13 +18,17 @@
         @row-selected="rowSelected"
       ></b-table>
     </b-modal>
-    <claim-creator :selectedArea="selectedArea" :selectedRegions="selectedRegions"></claim-creator>
+    <claim-creator
+      :selectedArea="selectedArea"
+      :selectedRegions="selectedRegions"
+    ></claim-creator>
   </div>
 </template>
 
 <script>
 import L from "leaflet";
 import { eventBus } from "../main";
+import getClaims from "../helpers/getClaims";
 
 export default {
   data() {
@@ -31,7 +37,7 @@ export default {
         regionsize: 512,
         chunksize: 16,
         tilesize: 128,
-        maxzoom: 4
+        maxzoom: 4,
       },
       selected: [],
       claims: [],
@@ -43,14 +49,14 @@ export default {
         ip: "",
         port: "",
         adminUser: "",
-        adminToken: ""
-      }
+        adminToken: "",
+      },
     };
   },
   computed: {
     cpmPort: function() {
       return parseInt(this.connectionInfo.port) + 1;
-    }
+    },
   },
   mounted() {
     if (localStorage.connectionInfo) {
@@ -63,15 +69,15 @@ export default {
       this.drawClaims();
     });
 
-    eventBus.$on("area-selected", latLngSelected => {
+    eventBus.$on("area-selected", (latLngSelected) => {
       this.selectedArea = latLngSelected;
     });
 
-    eventBus.$on("region-selected", regions => {
+    eventBus.$on("region-selected", (regions) => {
       this.selectedRegions = regions;
     });
 
-    eventBus.$on("add-command", command => {
+    eventBus.$on("add-command", (command) => {
       this.commands.push(command);
     });
   },
@@ -103,10 +109,10 @@ export default {
       this.selected = items;
     },
     async drawClaims() {
-      const resetRegions = await this.getClaims("resetregion");
+      const resetRegions = await getClaims("resetregion");
 
       for (const claimType of this.claimTypes) {
-        const claims = await this.getClaims(claimType);
+        const claims = await getClaims(claimType);
         for (const claim of claims) {
           claim["Claim type"] = claimType;
           claim.options = claim.Type;
@@ -117,7 +123,7 @@ export default {
       for (const resetRegion of resetRegions) {
         const region = this.CoordToRegion({
           lat: (resetRegion.W + resetRegion.E) / 2,
-          lng: (resetRegion.N + resetRegion.S) / 2
+          lng: (resetRegion.N + resetRegion.S) / 2,
         });
         resetRegion.Name = this.FormatRegionFileName(region);
         resetRegion["Claim type"] = "Reset region";
@@ -150,11 +156,9 @@ export default {
         .then(function(data) {
           return data;
         });
-    }
-  }
+    },
+  },
 };
 </script>
 
-
-<style scoped>
-</style>
+<style scoped></style>
