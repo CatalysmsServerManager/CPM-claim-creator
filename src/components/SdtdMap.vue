@@ -23,6 +23,7 @@
 import L from "leaflet";
 import { eventBus } from "../main";
 import { setInterval } from "timers";
+import getClaims from "../helpers/getClaims";
 
 const playerIcon = L.icon({
   iconUrl: "img/marker-survivor.png",
@@ -551,33 +552,6 @@ export default {
         })
         .addTo(this.map);
     },
-    getClaims(type) {
-      if (type === "resetregion") {
-        return fetch(`/api/getresetregions`)
-          .then(function(response) {
-            if (response) {
-              return response.json();
-            } else {
-              return [];
-            }
-          })
-          .then(function(data) {
-            return data;
-          });
-      }
-
-      return fetch(`/api/getadvclaims?type=${type}`)
-        .then(function(response) {
-          if (response) {
-            return response.json();
-          } else {
-            return [];
-          }
-        })
-        .then(function(data) {
-          return data;
-        });
-    },
     async drawAllClaims() {
       this.colorIterator = 0;
       for (const claimType of this.claimTypes) {
@@ -598,7 +572,7 @@ export default {
         }
       }
 
-      const claims = await this.getClaims(claimType);
+      const claims = await getClaims(claimType);
       const rectangles = [];
       for (const claim of claims) {
         rectangles.push(this.createClaimRectangle(claim, claimType));
