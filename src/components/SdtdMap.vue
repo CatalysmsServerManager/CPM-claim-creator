@@ -800,7 +800,7 @@ export default {
 
 .webmap-control {
   color: white;
-  font-size: 20px;
+  font-size: 1.3em;
   text-shadow: 0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black;
 }
 </style>
