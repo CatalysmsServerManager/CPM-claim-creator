@@ -45,7 +45,9 @@ window.claimTypes = [
   "playerlevel",
   "lcbfree",
   "antiblock",
-  "reset"
+  "reset",
+  "problock",
+  "landclaim"
 ];
 
 window.allocsMap = {

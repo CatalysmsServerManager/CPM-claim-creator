@@ -233,6 +233,29 @@
             v-model="options.antiBlockBlocks"
           ></b-form-input>
         </div>
+
+        <div v-if="type === 'landclaim'">
+          <p>
+            only claimowners, whitelisted players and accesslevel allowed
+            players can place any block within this adv. claim. Type=
+            "landclaim". Violation string configurable in CpmStrings.xml
+            (AdvClaims_Landclaim). Auto giveback to placing player.
+          </p>
+        </div>
+
+        <div v-if="type === 'problock'">
+          <p>
+            Use this claim to prevent placement of blocks that are not
+            configured as problock(s). Violation string configurable in
+            CpmStrings.xml (AdvClaims_ProBlock). Auto giveback to placing
+            player.
+          </p>
+          <label for="problockBlocks">Allowed blocks</label>
+          <b-form-input
+            id="problockBlocks"
+            v-model="options.problockBlocks"
+          ></b-form-input>
+        </div>
       </div>
     </div>
 
@@ -282,6 +305,8 @@ export default {
         // Playerlevel
         playerLevelCheck: "<=20",
         antiBlockBlocks: "forbidden1;forbidden2",
+        // Problock
+        problockBlocks: "allowed1;allowed2",
       },
       accessLevel: 0,
     };
@@ -357,7 +382,12 @@ export default {
         case "reset":
           commandString += `${this.type}`;
           break;
-
+        case "landclaim":
+          commandString += `${this.type}`;
+          break;
+        case "problock":
+          commandString += `${this.type}:${this.options.problockBlocks}`;
+          break;
         default:
           break;
       }
