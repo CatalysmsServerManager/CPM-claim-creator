@@ -94,6 +94,10 @@ export default {
         "chocolate",
         "skyblue",
         "#fc079e",
+        "#bdd3cb",
+        "#bada55",
+        "#008000",
+        "#ffc0cb",
       ],
       // After all claims for a type are finished drawing, this is incremented
       colorIterator: 0,
