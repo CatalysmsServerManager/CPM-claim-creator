@@ -788,7 +788,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 #map {
   height: 100vh;
   width: auto;
@@ -796,5 +796,11 @@ export default {
 
 #selection-control {
   pointer-events: auto;
+}
+
+.webmap-control {
+  color: white;
+  font-size: 1.3em;
+  text-shadow: 0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black;
 }
 </style>
