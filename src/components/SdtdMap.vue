@@ -40,6 +40,13 @@ const homeIcon = L.icon({
   popupAnchor: [0, -20],
 });
 
+const vehicleIcon = L.icon({
+  iconUrl: "img/vehicle-icon.png",
+  iconSize: [50, 50],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20],
+});
+
 const traderIcon = L.icon({
   iconUrl: "img/shopping-cart.png",
   iconSize: [25, 25],
@@ -356,6 +363,39 @@ export default {
         }
       }
     },
+    getVehicles() {
+      return fetch(`/api/getvehicles`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawVehicles() {
+      if (!this.hasPermission("cpmcc.GetVehicles")) {
+        return;
+      }
+
+      const currentVehicles = await this.getVehicles();
+      let vehiclesLayer = this.layers["Vehicles"];
+      if (!vehiclesLayer) {
+        this.layers["Vehicles"] = new L.LayerGroup();
+        vehiclesLayer = this.layers["Vehicles"];
+      }
+
+      vehiclesLayer.clearLayers();
+      for (const vehicle of currentVehicles.Vehicles) {
+        const marker = L.marker([vehicle.posX, vehicle.posZ], {
+          icon: vehicleIcon,
+        }).bindPopup(
+          `Vehicle: ${vehicle.name} <br> Position: ${vehicle.posX} ${
+            vehicle.posY
+          }  ${vehicle.posZ}`
+        );
+        vehiclesLayer.addLayer(marker);
+      }
+    },
     getHomes() {
       return fetch(`/api/getplayerhomes`)
         .then(function(response) {
@@ -610,6 +650,7 @@ export default {
       await this.drawLandClaims();
       await this.drawPlayers();
       await this.drawHomes();
+      await this.drawVehicles();
       await this.drawQuestPoi();
       await this.drawTraders();
       await this.drawPois();
