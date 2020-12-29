@@ -24,7 +24,7 @@ jobs:
           npm run build
       - name: Zip it
         run: |
-          zip -r --junk-paths cpmcc dist
+          zip -r cpmcc dist
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
