@@ -148,8 +148,11 @@ export default {
   methods: {
     hasPermission(permModule) {
       const permission = this.userStatus.permissions.find(
-        (p) => p.module === permModule
+        (p) => p.module.toUpperCase() === permModule.toUpperCase()
       );
+      if (permission === undefined) {
+         return false;
+      }
       return permission.allowed;
     },
     getUserStatus() {
