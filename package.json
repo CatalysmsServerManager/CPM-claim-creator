@@ -9,7 +9,7 @@
     "package": "npm run build && cp package.json dist/package.json && cd dist/ && npm pack"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-solid-svg-icons": "^5.10.2",
     "@fortawesome/vue-fontawesome": "^0.1.8",
     "bootstrap": "^4.3.1",
