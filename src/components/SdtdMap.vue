@@ -150,9 +150,8 @@ export default {
       const permission = this.userStatus.permissions.find(
         (p) => p.module.toUpperCase() === permModule.toUpperCase()
       );
-      if (permission === undefined) {
-         return false;
-      }
+      if(!permission) return false;
+
       return permission.allowed;
     },
     getUserStatus() {
@@ -190,11 +189,14 @@ export default {
       for (const lcbOwner of landClaimData.claimowners) {
         for (const lcb of lcbOwner.claims) {
           // Create the LCB marker & area
+          let claimcolor = lcbOwner.claimactive ? "green" : "red";
           const lcbArea = L.rectangle([
             [lcb.x - claimRadius, lcb.z - claimRadius],
-            [lcb.x + claimRadius, lcb.z + claimRadius],
-          ]).bindPopup(
-            `${lcbOwner.playername} - ${lcbOwner.steamid} <br> Status: ${
+            [lcb.x + claimRadius, lcb.z + claimRadius]],
+            {color: claimcolor,
+            weight: 1,
+          }).bindPopup(
+            `${lcbOwner.playername} - ${lcbOwner.steamid} <br> EOS_id: ${lcbOwner.eos_id} <br> Status: ${
               lcbOwner.claimactive ? "Active" : "Inactive"
             }`
           );
@@ -376,7 +378,7 @@ export default {
         });
     },
     async drawVehicles() {
-      if (!this.hasPermission("cpmcc.GetVehicles")) {
+      if (!this.hasPermission("cpmcc.getvehicles")) {
         return;
       }
 
@@ -436,7 +438,7 @@ export default {
         const marker = L.marker([home.x, home.z], {
           icon: homeIcon,
         }).bindPopup(
-          `Home owner: ${home.steamid} <br> Position: ${home.x} ${home.y} ${
+          `Home owner: ${home.steamid} <br> EOS_id: ${home.eos_id} <br> Position: ${home.x} ${home.y} ${
             home.z
           }`
         );
