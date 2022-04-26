@@ -150,6 +150,8 @@ export default {
       const permission = this.userStatus.permissions.find(
         (p) => p.module === permModule
       );
+      if(!permission) return false;
+
       return permission.allowed;
     },
     getUserStatus() {
@@ -376,7 +378,7 @@ export default {
         });
     },
     async drawVehicles() {
-      if (!this.hasPermission("cpmcc.GetVehicles")) {
+      if (!this.hasPermission("cpmcc.getvehicles")) {
         return;
       }
 
