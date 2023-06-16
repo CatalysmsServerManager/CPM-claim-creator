@@ -196,7 +196,7 @@ export default {
             {color: claimcolor,
             weight: 1,
           }).bindPopup(
-            `${lcbOwner.playername} - ${lcbOwner.steamid} <br> EOS_id: ${lcbOwner.eos_id} <br> Status: ${
+            `${lcbOwner.playername} - ${lcbOwner.steamid} <br> EOS_id: ${lcbOwner.eos_id} <br> Position: ${lcb.x} ${lcb.y} ${lcb.z} <br> Status: ${
               lcbOwner.claimactive ? "Active" : "Inactive"
             }`
           );
