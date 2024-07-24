@@ -593,7 +593,7 @@ export default {
         attributionControl: false,
         crs: SDTD_CRS,
         zoomControl: false,
-      }).setView([0, 0], Math.max(0, this.mapInfo.maxzoom - 1));
+      }).setView([0, 0], 0);
 
       L.control
         .zoom({
