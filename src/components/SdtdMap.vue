@@ -47,6 +47,13 @@ const vehicleIcon = L.icon({
   popupAnchor: [0, -20],
 });
 
+const droneIcon = L.icon({
+  iconUrl: "img/drone-icon.png",
+  iconSize: [50, 50],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20],
+});
+
 const traderIcon = L.icon({
   iconUrl: "img/shopping-cart.png",
   iconSize: [25, 25],
@@ -399,6 +406,39 @@ export default {
           }  ${vehicle.posZ}`
         );
         vehiclesLayer.addLayer(marker);
+      }
+    },
+    getDrones() {
+      return fetch(`/api/getdrones`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          return data;
+        });
+    },
+    async drawDrones() {
+      if (!this.hasPermission("ClaimCreator.getdrones")) {
+        return;
+      }
+
+      const currentDrones = await this.getDrones();
+      let dronesLayer = this.layers["Drones"];
+      if (!dronesLayer) {
+        this.layers["Drones"] = new L.LayerGroup();
+        dronesLayer = this.layers["Drones"];
+      }
+
+      dronesLayer.clearLayers();
+      for (const drone of currentDrones.Drones) {
+        const marker = L.marker([drone.posX, drone.posZ], {
+          icon: droneIcon,
+        }).bindPopup(
+          `Drone: ${drone.name} <br> Position: ${drone.posX} ${
+            drone.posY
+          }  ${drone.posZ}`
+        );
+        dronesLayer.addLayer(marker);
       }
     },
     getHomes() {
