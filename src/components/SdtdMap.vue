@@ -135,9 +135,8 @@ export default {
         this.drawLandClaims();
         this.drawPlayers();
         this.drawHomes();
-        this.drawQuestPoi();
-        this.drawTraders();
-        this.drawPois();
+        this.drawVehicles();
+        this.drawDrones();
       }, 30000);
 
       this.createMap();
@@ -696,6 +695,7 @@ export default {
       await this.drawPlayers();
       await this.drawHomes();
       await this.drawVehicles();
+      await this.drawDrones();
       await this.drawQuestPoi();
       await this.drawTraders();
       await this.drawPois();
